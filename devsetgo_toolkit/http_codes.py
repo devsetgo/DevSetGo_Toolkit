@@ -8,6 +8,7 @@ Use example:
 - GET_CODES, POST_CODES, PUT_CODES, PATCH_CODES, and DELETE_CODES can be used to define HTTP error codes commonly encountered with each type of request method in an API.
 """
 
+
 http_codes = {
     100: {"description": "Continue"},
     101: {"description": "Switching Protocols"},
@@ -77,86 +78,57 @@ http_codes = {
 # Define dictionaries for each HTTP method that map commonly encountered HTTP error codes to their descriptions.
 # Each key-value pair maps an HTTP error code to its corresponding description in the http_codes dictionary.
 
-# GET common error codes
-GET_CODES = {
-    200: http_codes[200],
-    307: http_codes[307],
-    400: http_codes[400],
-    401: http_codes[401],
-    403: http_codes[403],
-    404: http_codes[404],
-    408: http_codes[408],
-    418: http_codes[418],
-    429: http_codes[429],
-    500: http_codes[500],
-    503: http_codes[503],
-}
 
-# POST common error codes
-POST_CODES = {
-    201: http_codes[201],
-    307: http_codes[307],
-    400: http_codes[400],
-    401: http_codes[401],
-    403: http_codes[403],
-    404: http_codes[404],
-    408: http_codes[408],
-    413: http_codes[413],
-    418: http_codes[418],
-    429: http_codes[429],
-    500: http_codes[500],
-    503: http_codes[503],
-}
+# def generate_code_dict(codes):
+#     """
+#     Generate a dictionary of specific HTTP error codes from the http_codes dictionary.
 
-# PUT common error codes
-PUT_CODES = {
-    200: http_codes[200],
-    204: http_codes[204],
-    400: http_codes[400],
-    401: http_codes[401],
-    403: http_codes[403],
-    404: http_codes[404],
-    408: http_codes[408],
-    413: http_codes[413],
-    418: http_codes[418],
-    429: http_codes[429],
-    500: http_codes[500],
-    503: http_codes[503],
-}
+#     This function takes a list of HTTP error codes as input and returns a new dictionary
+#     containing only these error codes and their meaning. If a code is not found in the
+#     http_codes dictionary, it will be ignored.
 
-# PATCH common error codes
-PATCH_CODES = {
-    200: http_codes[200],
-    204: http_codes[204],
-    400: http_codes[400],
-    401: http_codes[401],
-    403: http_codes[403],
-    404: http_codes[404],
-    408: http_codes[408],
-    413: http_codes[413],
-    418: http_codes[418],
-    429: http_codes[429],
-    500: http_codes[500],
-    503: http_codes[503],
-}
+#     Args:
+#         codes (list): A list of HTTP error codes.
 
-# DELETE common error codes
-DELETE_CODES = {
-    200: http_codes[200],
-    204: http_codes[204],
-    400: http_codes[400],
-    401: http_codes[401],
-    403: http_codes[403],
-    404: http_codes[404],
-    408: http_codes[408],
-    418: http_codes[418],
-    429: http_codes[429],
-    500: http_codes[500],
-    503: http_codes[503],
-}
+#     Returns:
+#         dict: A dictionary where each key is an HTTP error code from the input list and
+#         each value is the meaning of the code from the http_codes dictionary.
 
-SYSTEM_INFO_CODE = {
-    200: http_codes[200],
-    409: http_codes[409],
-    500: http_codes[500],
-}
+#     Example:
+#         >>> generate_code_dict([404, 500])
+#         {404: 'Not Found', 500: 'Internal Server Error'}
+#     """
+#     # Use dictionary comprehension to create a new dictionary
+#     return {code: http_codes[code] for code in codes if code in http_codes}
+
+
+def generate_code_dict(codes):
+    """
+    Generate a dictionary of specific HTTP error codes from the http_codes dictionary.
+
+    Args:
+        codes (list): A list of HTTP error codes.
+
+    Returns:
+        dict: A dictionary where each key is an HTTP error code from the input list and
+        each value is the meaning of the code from the http_codes dictionary.
+    """
+    return {code: http_codes[code] for code in codes if code in http_codes}
+
+
+common_codes = [200, 400, 401, 403, 404, 408, 429, 500, 503]
+
+# Generate dictionary of common error codes for GET requests
+GET_CODES = generate_code_dict(common_codes + [206, 304, 307, 410, 418, 502])
+
+# Generate dictionary of common error codes for POST requests
+POST_CODES = generate_code_dict(common_codes + [201, 202, 205, 307, 409, 413, 415, 418])
+
+# Generate dictionary of common error codes for PUT requests
+PUT_CODES = generate_code_dict(common_codes + [202, 204, 206, 409, 412, 413, 418])
+
+# Generate dictionary of common error codes for PATCH requests
+PATCH_CODES = generate_code_dict(common_codes + [202, 204, 206, 409, 412, 413, 418])
+
+# Generate dictionary of common error codes for DELETE requests
+DELETE_CODES = generate_code_dict(common_codes + [202, 204, 205, 409, 418])
