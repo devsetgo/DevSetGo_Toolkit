@@ -1,0 +1,74 @@
+
+site_name: DSG_LIB
+# Project information
+site_name: 'DSG_LIB'
+site_description: 'Common functions for Python applications. This is to increase reusability and limit rewritting the same functions in multiple applications. It also allows for defects to be addressed quickly and then be propigated across applications.'
+site_author: 'Mike Ryan'
+# site_url: 'https://squidfunk.github.io/mkdocs-material/'
+# Repository
+repo_name: 'devsetgo/DevSetGo_Toolkit'
+repo_url: 'https://github.com/devsetgo/devsetgo_toolkit'
+
+# Copyright
+copyright: 'Copyright &copy; 2023 Mike Ryan'
+
+nav:
+    - Introduction: 'index.md'
+    - QuickStart: 'quickstart.md'
+    - HTTPCodes: 'httpcodes.md'
+    - Contributing: 'contribute.md'
+# Theme
+theme:
+  features:
+    - navigation.tabs
+    - navigation.instant
+  name: 'material'
+  palette:
+    # Toggle light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+    # Toggle dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+  language: en
+  plugins:
+    - search
+
+  # font:
+  #   text: 'Roboto'
+  #   code: 'Roboto Mono'
+  # logo:
+  #   icon:
+  #     repo: fontawesome/solid/people-carry
+  # language: 'en'
+  # plugins:
+  # - search
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - footnotes
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+
+plugins:
+  - search:
+      separator: '[\s\-\.]+'
+      lang:
+        - en
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/devsetgo
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/_devsetgo

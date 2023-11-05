@@ -41,8 +41,8 @@ isort:
 install:
 	$(PIP) install -r $(REQUIREMENTS_PATH)
 
-# test:
-# 	$(PYTEST)
+flake8:
+	flake8 --tee . > _flake8Report.txt
 
 test:
 	pre-commit run -a

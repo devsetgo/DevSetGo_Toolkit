@@ -1,22 +1,33 @@
+# -*- coding: utf-8 -*-
 import pytest
+
 from devsetgo_toolkit.http_codes import generate_code_dict
+from devsetgo_toolkit.http_codes import http_codes
 
 
 def test_generate_code_dict():
-    # Test with a few known codes
-    result = generate_code_dict([200, 404, 500])
-    expected_result = {
-        200: {"description": "OK"},
-        404: {"description": "Not Found"},
-        500: {"description": "Internal Server Error"},
-    }
+    # Test with description_only set to False (default)
+    codes = [200, 404]
+    expected_result = {200: http_codes[200], 404: http_codes[404]}
+    result = generate_code_dict(codes)
     assert result == expected_result
 
-    # Test with a non-existent code
-    result = generate_code_dict([999])
-    assert result == {}
+    # Test with description_only set to True
+    expected_result = {
+        200: http_codes[200]["description"],
+        404: http_codes[404]["description"],
+    }
+    result = generate_code_dict(codes, description_only=True)
+    assert result == expected_result
 
-    # Test with a mix of valid and invalid codes
-    result = generate_code_dict([200, 999])
-    expected_result = {200: {"description": "OK"}}
+    # Test with a code that does not exist in http_codes
+    codes = [200, 999]
+    expected_result = {200: http_codes[200]}
+    result = generate_code_dict(codes)
+    assert result == expected_result
+
+    # Test with an empty list
+    codes = []
+    expected_result = {}
+    result = generate_code_dict(codes)
     assert result == expected_result

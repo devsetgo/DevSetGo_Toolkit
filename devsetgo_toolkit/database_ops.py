@@ -6,7 +6,7 @@ It includes functionality to count rows in a query,
 fetch a limited set of results from a query or multiple queries,
 and execute database operations like insert and update on one or many records.
 
-The DatabaseOperations class encapsulates these functionalities and 
+The DatabaseOperations class encapsulates these functionalities and
 can be used to interact with the database asynchronously.
 """
 

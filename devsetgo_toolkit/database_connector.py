@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module defines the asynchronous database class `AsyncDatabase` for handling database connections and sessions in an 
+This module defines the asynchronous database class `AsyncDatabase` for handling database connections and sessions in an
 asynchronous context.
 
 The `AsyncDatabase` class does the following:
@@ -10,7 +10,7 @@ The `AsyncDatabase` class does the following:
 - Defines the base model that is used to produce tables.
 - Creates an asynchronous sessionmaker.
 - Provides a method `create_tables` to create all tables in the database.
-- Provides a context manager `get_db_session` to manage database sessions. It handles committing and closing the session, 
+- Provides a context manager `get_db_session` to manage database sessions. It handles committing and closing the session,
   as well as error handling.
 
 Import this module and use the `AsyncDatabase` class to interact with the database in an asynchronous manner.

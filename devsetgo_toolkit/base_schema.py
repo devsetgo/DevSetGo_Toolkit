@@ -7,9 +7,9 @@ It uses SQLAlchemy as the ORM and provides a `SchemaBase` class that all other m
 The `SchemaBase` class includes common columns that are needed for most models like `_id`, `date_created`, and `date_updated`.
 
 - `_id`: A unique identifier for each record. It's a string representation of a UUID.
-- `date_created`: The date and time when a particular row was inserted into the table. 
+- `date_created`: The date and time when a particular row was inserted into the table.
   It defaults to the current UTC time when the instance is created.
-- `date_updated`: The date and time when a particular row was last updated. 
+- `date_updated`: The date and time when a particular row was last updated.
   It defaults to the current UTC time whenever the instance is updated.
 
 Import this module and extend the `SchemaBase` class to create new database models.
