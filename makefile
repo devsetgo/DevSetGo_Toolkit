@@ -41,8 +41,14 @@ isort:
 install:
 	$(PIP) install -r $(REQUIREMENTS_PATH)
 
+# test:
+# 	$(PYTEST)
+
 test:
-	$(PYTEST)
+	pre-commit run -a
+	pytest
+	sed -i 's|<source>/workspaces/devsetgo_toolkit</source>|<source>/github/workspace</source>|' /workspaces/devsetgo_toolkit/coverage.xml
+	coverage-badge -o coverage.svg -f
 
 
 
