@@ -5,6 +5,7 @@ bump2version==1.0.1 #   Vulnerabilities: None
 Click==8.1.7 #  From 8.1.5 |   Vulnerabilities: None
 coverage-badge==1.1.0 #   Vulnerabilities: None
 flake8==6.1.0 #  From 6.0.0 |   Vulnerabilities: None
+freezegun
 loguru==0.7.2 #  From 0.7.0 |   Vulnerabilities: None
 mkdocs==1.5.3 #  From 1.4.3 |   Vulnerabilities: None
 mkdocs-gen-files==0.5.0 #   Vulnerabilities: None

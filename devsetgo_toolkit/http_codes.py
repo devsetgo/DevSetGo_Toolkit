@@ -8,7 +8,7 @@ Use example:
     HTTP error codes commonly encountered with each type of request method in an API.
 """
 
-http_codes = {
+ALL_HTTP_CODES = {
     100: {
         "description": "Continue",
         "link": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100",
@@ -280,30 +280,17 @@ def generate_code_dict(codes, description_only=False):
 
     if description_only:
         return {
-            code: http_codes[code]["description"]
+            code: ALL_HTTP_CODES[code]["description"]
             for code in codes
-            if code in http_codes
+            if code in ALL_HTTP_CODES
         }
     else:
-        return {code: http_codes[code] for code in codes if code in http_codes}
+        return {code: ALL_HTTP_CODES[code] for code in codes if code in ALL_HTTP_CODES}
 
 
 # Usage:
 common_codes = [200, 400, 401, 403, 404, 408, 429, 500, 503]
 
-GET_CODES = generate_code_dict(
-    common_codes + [206, 304, 307, 410, 502], description_only=True
-)
-
-# Usage:
-common_codes = [200, 400, 401, 403, 404, 408, 429, 500, 503]
-
-GET_CODES = generate_code_dict(common_codes + [206, 304, 307, 410, 502])
-
-
-common_codes = [200, 400, 401, 403, 404, 408, 429, 500, 503]
-
-# Generate dictionary of common error codes for GET requests
 GET_CODES = generate_code_dict(common_codes + [206, 304, 307, 410, 502])
 
 # Generate dictionary of common error codes for POST requests
