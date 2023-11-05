@@ -14,14 +14,21 @@ import logging
 
 # Importing required modules and libraries
 from typing import List
-
-from fastapi import HTTPException
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 
-from .database_connector import AsyncDatabase
+# Importing database connector module
+from devsetgo_toolkit.database_connector import AsyncDatabase
+
+
+# Custom Exception Class
+class DatabaseOperationException(Exception):
+    # Constructor method
+    def __init__(self, status_code, detail):
+        self.status_code = status_code  # Status Code attribute
+        self.detail = detail  # Detail attribute
 
 
 # Class to handle Database operations
@@ -29,14 +36,18 @@ class DatabaseOperations:
     # Method to count rows in a query
     @classmethod
     async def count_query(cls, query):
+        # Create an asynchronous context manager for the database session
         async with AsyncDatabase().get_db_session() as session:
+            # Execute the SQL COUNT function on the given query and return the result
             result = await session.execute(select(func.count()).select_from(query))
             return result.scalar()
 
     # Method to fetch a limited set of results from a query
     @classmethod
     async def fetch_query(cls, query, limit=500, offset=0):
+        # Create an asynchronous context manager for the database session
         async with AsyncDatabase().get_db_session() as session:
+            # Execute the given query with limit and offset, and return all results
             result = await session.execute(query.limit(limit).offset(offset))
             return result.scalars().all()
 
@@ -44,8 +55,11 @@ class DatabaseOperations:
     @classmethod
     async def fetch_queries(cls, queries: dict, limit=500, offset=0):
         results = {}
+        # Create an asynchronous context manager for the database session
         async with AsyncDatabase().get_db_session() as session:
+            # Iterate over each query in the queries dictionary
             for query_name, query in queries.items():
+                # Execute each query with limit and offset, and store all results in the results dictionary
                 result = await session.execute(query.limit(limit).offset(offset))
                 results[query_name] = result.scalars().all()
         return results
@@ -54,16 +68,19 @@ class DatabaseOperations:
     @classmethod
     async def execute_one(cls, record):
         try:
+            # Create an asynchronous context manager for the database session
             async with AsyncDatabase().get_db_session() as session:
+                # Add the given record to the session
                 session.add(record)
+                # Commit the session to save changes
                 await session.commit()
             logging.info("Record operation successful")
             return record
         except IntegrityError as ex:
             logging.error(f"IntegrityError on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            # return {"error":error_only,"details":"see logs for further information"}
-            raise HTTPException(
+            # Raise custom exception if an IntegrityError occurs
+            raise DatabaseOperationException(
                 status_code=400,
                 detail={
                     "error": error_only,
@@ -74,8 +91,8 @@ class DatabaseOperations:
         except SQLAlchemyError as ex:
             logging.error(f"SQLAlchemyError on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            # return {"error":error_only,"details":"see logs for further information"}
-            raise HTTPException(
+            # Raise custom exception if an SQLAlchemyError occurs
+            raise DatabaseOperationException(
                 status_code=400,
                 detail={
                     "error": error_only,
@@ -85,8 +102,8 @@ class DatabaseOperations:
         except Exception as ex:
             logging.error(f"Exception Failed to perform operation on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            # return {"error":error_only,"details":"see logs for further information"}
-            raise HTTPException(
+            # Raise custom exception if a general exception occurs
+            raise DatabaseOperationException(
                 status_code=400,
                 detail={
                     "error": error_only,
@@ -97,11 +114,12 @@ class DatabaseOperations:
     # Method to execute multiple database operations (like bulk insert, update) on many records
     @classmethod
     async def execute_many(cls, records: List):
-        # TODO: How to make this report back what records failed. This should be optional to fail all or allow successful records to be committed.
-
         try:
+            # Create an asynchronous context manager for the database session
             async with AsyncDatabase().get_db_session() as session:
+                # Add all given records to the session
                 session.add_all(records)
+                # Commit the session to save changes
                 await session.commit()
 
                 num_records = len(records)
@@ -113,7 +131,8 @@ class DatabaseOperations:
         except Exception as ex:
             error_only = str(ex).split("[SQL:")[0]
             logging.error(f"Failed to perform operations on records: {ex}")
-            raise HTTPException(
+            # Raise custom exception if a general exception occurs
+            raise DatabaseOperationException(
                 status_code=400,
                 detail={
                     "error": error_only,
