@@ -1,4 +1,4 @@
-me: PythonPackage
+name: PythonPackage
 
 on: [push]
 
