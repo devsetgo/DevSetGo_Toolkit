@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import Session
 from uuid import uuid4, UUID
 import datetime
@@ -9,18 +10,21 @@ from devsetgo_toolkit import SchemaBase
 
 Base = declarative_base()
 
+
 class User(SchemaBase, Base):
-    __tablename__ = 'test_table'
+    __tablename__ = "test_table"
     name_first = Column(String, unique=False, index=True)
+
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Set up a SQLite database in memory
-engine = create_engine('sqlite:///:memory:')
+engine = create_engine("sqlite:///:memory:")
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base.metadata.create_all(bind=engine) # Create the schema
+Base.metadata.create_all(bind=engine)  # Create the schema
+
 
 @pytest.fixture
 def db_session():
