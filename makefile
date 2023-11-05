@@ -47,7 +47,7 @@ install:
 test:
 	pre-commit run -a
 	pytest
-	sed -i 's|<source>/workspaces/DevSetGo_Toolkit</source>|<source>/github/workspace</source>|' /workspaces/DevSetGo_Toolkit/coverage.xml
+	sed -i 's|<source>/workspaces/DevSetGo_Toolkit</source>|<source>/github/workspace/DevSetGo_Toolkit</source>|' /workspaces/DevSetGo_Toolkit/coverage.xml
 	coverage-badge -o coverage.svg -f
 
 
