@@ -15,7 +15,7 @@ REQUIREMENTS_PATH = requirements.txt
 .PHONY: install help black isort autoflake
 
 autoflake:
-	autoflake --in-place --remove-all-unused-imports -r $(SERVICE_PATH)
+	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(SERVICE_PATH)
 
 black:
 	black $(SERVICE_PATH)
