@@ -6,10 +6,12 @@ from dsg_lib.logging_config import config_log
 from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
 # from sqlalchemy.future import select
 from sqlalchemy import Column, Select, String
 
 from example import health_check
+
 # , tools
 # from .database_ops import DatabaseOperations
 # from .database_connector import AsyncDatabase
@@ -25,16 +27,16 @@ config_log(
     log_backtrace=True,
     log_format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}",
     log_serializer=False,
-    
 )
 
 settings_dict = {
-    'database_uri': "sqlite+aiosqlite:///:memory:?cache=shared",
+    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
 }
 
 
 async_db = AsyncDatabase(settings_dict=settings_dict)
 db_ops = DatabaseOperations(async_db)
+
 
 class User(SchemaBase, async_db.Base):
     __tablename__ = "users"
@@ -110,8 +112,8 @@ async def count_users():
 
 @app.get("/users")
 async def read_users(
-    limit: int = Query(None, alias="limit", ge=1, le=1000), 
-    offset: int = Query(None, alias="offset")
+    limit: int = Query(None, alias="limit", ge=1, le=1000),
+    offset: int = Query(None, alias="offset"),
 ):
     if limit is None:
         limit = 500
@@ -122,9 +124,7 @@ async def read_users(
     query_count = Select(User)
     total_count = await db_ops.count_query(query=query_count)
     query = Select(User)
-    users = await db_ops.fetch_query(
-        query=query, limit=limit, offset=offset
-    )
+    users = await db_ops.fetch_query(query=query, limit=limit, offset=offset)
     return {
         "query_data": {"total_count": total_count, "count": len(users)},
         "users": users,
@@ -153,36 +153,34 @@ async def create_users(user_list: UserList):
     created_users = await db_ops.execute_many(db_users)
     return created_users
 
+
 import random
 import string
+
 
 @app.get(
     "/users/bulk/auto",
     response_model=List[UserResponse],
     status_code=status.HTTP_201_CREATED,
 )
-async def create_users_auto(qty:int = Query(100,le=1000,ge=1)):
-    
-    created_users:list=[]
+async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
+    created_users: list = []
     for i in range(qty):
         # Generate a random first name, last name
-        name_first = ''.join(random.choices(string.ascii_lowercase, k=5))
-        name_last = ''.join(random.choices(string.ascii_lowercase, k=5))
-        
+        name_first = "".join(random.choices(string.ascii_lowercase, k=5))
+        name_last = "".join(random.choices(string.ascii_lowercase, k=5))
+
         # Generate a random email
-        random_email_part = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-        email = f'user{random_email_part}@yahoo.com'
-        
-        db_user = User(
-            name_first=name_first, 
-            name_last=name_last, 
-            email=email
+        random_email_part = "".join(
+            random.choices(string.ascii_lowercase + string.digits, k=10)
         )
+        email = f"user{random_email_part}@yahoo.com"
+
+        db_user = User(name_first=name_first, name_last=name_last, email=email)
         created_user = await db_ops.execute_one(db_user)
         created_users.append(created_user)
-    
-    return created_users
 
+    return created_users
 
 
 @app.get("/users/{user_id}", response_model=UserResponse)

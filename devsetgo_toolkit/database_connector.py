@@ -63,6 +63,15 @@ class AsyncDatabase:
             await conn.run_sync(self.Base.metadata.create_all)
         logging.info("Tables created successfully")
 
+    async def create_tables(self):
+        conn = await self.engine.begin()
+        try:
+            await conn.run_sync(self.Base.metadata.create_all)
+            logging.info("Tables created successfully")
+        finally:
+            await conn.close()
+            logging.info("Database connection closed.")
+
     @asynccontextmanager
     async def get_db_session(self):
         db_session = self.sessionmaker()

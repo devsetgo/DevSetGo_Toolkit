@@ -1,4 +1,4 @@
-# # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # import json
 # import logging
 # import time
@@ -57,7 +57,7 @@ async def health_main() -> dict:
     Returns:
         dict -- [status: UP, uptime: seconds current_datetime: datetime.now]
     """
-    status ={"status": "UP"}
+    status = {"status": "UP"}
     logger.info(status)
     return status
 
@@ -85,12 +85,14 @@ async def health_status() -> dict:
     except Exception as e:
         logger.error(f"Error: {e}")
 
+
 @router.get("/db-connections")
 async def get_db_connections():
     # Get the connection pool's status
     pool_status = AsyncDatabase.engine.pool.status()
-    
+
     return pool_status
+
 
 # @router.get("/processes", tags=["system-health"])
 # async def health_processes() -> dict:
