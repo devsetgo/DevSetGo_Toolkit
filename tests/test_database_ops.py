@@ -1,72 +1,91 @@
 # -*- coding: utf-8 -*-
-import asyncio
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
+
+from sqlalchemy.exc import IntegrityError
 from devsetgo_toolkit.database_connector import AsyncDatabase
-from devsetgo_toolkit.database_ops import DatabaseOperationException, DatabaseOperations
+from devsetgo_toolkit.database_ops import DatabaseOperations, DatabaseOperationException
 
 
-# Mocking a session object for testing
-class MockSession:
-    def __init__(self):
-        self.add_called = False
-        self.commit_called = False
-
-    async def add(self, record):
-        self.add_called = True
-
-    async def commit(self):
-        self.commit_called = True
-
-
-# Fixture providing settings dictionary
 @pytest.fixture
-def db_settings():
-    return {"database_uri": "sqlite+aiosqlite:///:memory:?cache=shared"}
+async def db_operations(event_loop):
+    settings_dict = {"database_uri": "sqlite+aiosqlite:///:memory:?cache=shared"}
+    async_db = AsyncDatabase(settings_dict=settings_dict)
+    await async_db.__aenter__()  # Initialize the app before the tests
+    db_ops = DatabaseOperations(async_db)
+    yield db_ops
+    await async_db.__aexit__(None, None, None)  # Close connection after test
 
 
-@patch.object(AsyncDatabase, "get_db_session")
-def test_execute_one(mock_get_db_session, db_settings):
-    mock_get_db_session.return_value.__aenter__.return_value = MockSession()
-
-    db = AsyncDatabase(db_settings)
-    record = {"id": 1, "name": "Test"}
-    result = asyncio.run(DatabaseOperations(db).execute_one(record))
-
-    assert isinstance(result, dict)
-    assert result == record
-    assert mock_get_db_session.return_value.__aenter__.return_value.add_called
-    assert mock_get_db_session.return_value.__aenter__.return_value.commit_called
+async def test_count_query(db_operations, mocker):
+    mock_query = MagicMock()
+    db_operations = await db_operations
+    session_mock = mocker.patch.object(db_operations.async_db, "get_db_session")
+    count = db_operations.count_query(mock_query)
+    assert count == 10
 
 
-@patch.object(DatabaseOperations, "execute_one", side_effect=Exception)
-def test_execute_one_with_exception(db_settings):
-    db = AsyncDatabase(db_settings)
-    record = {"id": 1, "name": "Test"}
+# test_fetch_query
+@pytest.mark.asyncio
+async def test_fetch_query(db_operations, mocker):
+    mock_query = MagicMock()
+    db_operations = await db_operations
+    session_mock = mocker.patch.object(
+        db_operations.async_db, "get_db_session", new=AsyncMock()
+    )
+
+    async with session_mock() as session:
+        session.execute.return_value.scalars.all.return_value = ["result1", "result2"]
+        results = await db_operations.fetch_query(mock_query)
+        assert results == ["result1", "result2"]
+
+
+# test_execute_one_success
+@pytest.mark.asyncio
+async def test_execute_one_success(db_operations, mocker):
+    mock_record = MagicMock()
+    session_mock = mocker.patch.object(
+        db_operations.async_db, "get_db_session", new=AsyncMock()
+    )
+
+    result = await db_operations.execute_one(mock_record)
+    assert result == mock_record
+
+
+# test_execute_one_failure
+@pytest.mark.asyncio
+async def test_execute_one_failure(db_operations, mocker):
+    mock_record = MagicMock()
+    session_mock = mocker.patch.object(
+        db_operations.async_db, "get_db_session", new=AsyncMock()
+    )
+    session_mock().__aenter__().add.side_effect = IntegrityError(None, None, None)
 
     with pytest.raises(DatabaseOperationException):
-        asyncio.run(DatabaseOperations(db).execute_one(record))
+        await db_operations.execute_one(mock_record)
 
 
-@patch.object(AsyncDatabase, "get_db_session")
-def test_execute_many(mock_get_db_session, db_settings):
-    mock_get_db_session.return_value.__aenter__.return_value = MockSession()
+# test_execute_many_success
+@pytest.mark.asyncio
+async def test_execute_many_success(db_operations, mocker):
+    mock_records = [MagicMock(), MagicMock()]
+    session_mock = mocker.patch.object(
+        db_operations.async_db, "get_db_session", new=AsyncMock()
+    )
 
-    db = AsyncDatabase(db_settings)
-    records = [{"id": 1, "name": "Test"}, {"id": 2, "name": "Test 2"}]
-    result = asyncio.run(DatabaseOperations(db).execute_many(records))
-
-    assert isinstance(result, list)
-    assert all(isinstance(record, dict) for record in result)
-    assert result == records
-    assert mock_get_db_session.return_value.__aenter__.return_value.add_called
-    assert mock_get_db_session.return_value.__aenter__.return_value.commit_called
+    result = await db_operations.execute_many(mock_records)
+    assert result == mock_records
 
 
-@patch.object(DatabaseOperations, "execute_many", side_effect=Exception)
-def test_execute_many_with_exception(db_settings):
-    db = AsyncDatabase(db_settings)
-    records = [{"id": 1, "name": "Test"}, {"id": 2, "name": "Test 2"}]
+# test_execute_many_failure
+@pytest.mark.asyncio
+async def test_execute_many_failure(db_operations, mocker):
+    mock_records = [MagicMock(), MagicMock()]
+    session_mock = mocker.patch.object(
+        db_operations.async_db, "get_db_session", new=AsyncMock()
+    )
+    session_mock().__aenter__().add_all.side_effect = Exception()
 
     with pytest.raises(DatabaseOperationException):
-        asyncio.run(DatabaseOperations(db).execute_many(records))
+        await db_operations.execute_many(mock_records)

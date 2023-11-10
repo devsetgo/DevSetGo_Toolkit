@@ -33,7 +33,6 @@ settings_dict = {
     "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
 }
 
-
 async_db = AsyncDatabase(settings_dict=settings_dict)
 db_ops = DatabaseOperations(async_db)
 

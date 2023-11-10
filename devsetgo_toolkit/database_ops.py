@@ -8,6 +8,14 @@ and execute database operations like insert and update on one or many records.
 
 The DatabaseOperations class encapsulates these functionalities and
 can be used to interact with the database asynchronously.
+
+Setup to use class
+settings_dict = {
+    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
+}
+async_db = AsyncDatabase(settings_dict=settings_dict)
+db_ops = DatabaseOperations(async_db)
+
 """
 
 import logging

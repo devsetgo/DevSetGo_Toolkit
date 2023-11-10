@@ -27,6 +27,7 @@ pylint==3.0.2 #   Vulnerabilities: None
 pytest==7.4.3 #   Vulnerabilities: None
 pytest-asyncio==0.21.1 #   Vulnerabilities: None
 pytest-cov==4.1.0 #   Vulnerabilities: None
+pytest-mock
 pytest-runner==6.0.0 #   Vulnerabilities: None
 pytest-xdist==3.3.1 #   Vulnerabilities: None
 python-dotenv==1.0.0 #   Vulnerabilities: None
