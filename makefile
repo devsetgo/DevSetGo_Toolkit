@@ -12,7 +12,7 @@ VENV_PATH = _venv
 REQUIREMENTS_PATH = requirements.txt
 # DEV_REQUIREMENTS_PATH = requirements/dev.txt
 
-.PHONY: install help black isort autoflake
+.PHONY: install help black isort autoflake speedtest cleanup flake8 test
 
 autoflake:
 	autoflake --in-place --remove-all-unused-imports -r $(SERVICE_PATH)
@@ -44,11 +44,15 @@ install:
 flake8:
 	flake8 --tee . > _flake8Report.txt
 
+speedtest:
+	if [ ! -f example/http_request.so ]; then gcc -shared -o example/http_request.so example/http_request.c -lcurl -fPIC; fi
+	python3 example/loop_c.py
+
 test:
 	pre-commit run -a
 	pytest
 	sed -i 's|<source>/workspaces/DevSetGo_Toolkit</source>|<source>/github/workspace/DevSetGo_Toolkit</source>|' /workspaces/DevSetGo_Toolkit/coverage.xml
 	coverage-badge -o coverage.svg -f
 
-
-
+runexample:
+	uvicorn example.main:app --port 5000 --workers 8
