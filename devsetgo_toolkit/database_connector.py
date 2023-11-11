@@ -16,9 +16,12 @@ The `AsyncDatabase` class does the following:
 Import this module and use the `AsyncDatabase` class to interact with the database in an asynchronous manner.
 
 example dictionary to pass into the class.
+
 settings_dict = {
-    'database_uri': "sqlite+aiosqlite:///:memory:?cache=shared",
+    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
 }
+async_db = AsyncDatabase(settings_dict=settings_dict)
+db_ops = DatabaseOperations(async_db)
 
 """
 
@@ -64,13 +67,9 @@ class AsyncDatabase:
         logging.info("Tables created successfully")
 
     async def create_tables(self):
-        conn = await self.engine.begin()
-        try:
+        async with self.engine.begin() as conn:
             await conn.run_sync(self.Base.metadata.create_all)
-            logging.info("Tables created successfully")
-        finally:
-            await conn.close()
-            logging.info("Database connection closed.")
+        logging.info("Tables created successfully")
 
     @asynccontextmanager
     async def get_db_session(self):

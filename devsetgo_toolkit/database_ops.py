@@ -100,25 +100,39 @@ class DatabaseOperations:
                 },
             )
 
+    # async def execute_many(self, records: List):
+    #     try:
+    #         async with self.async_db.get_db_session() as session:
+    #             session.add_all(records)
+    #             await session.commit()
+
+    #             num_records = len(records)
+    #             logging.info(
+    #                 f"Record operations were successful. {num_records} records were created."
+    #             )
+
+    #             return records
+    #     except Exception as ex:
+    #         error_only = str(ex).split("[SQL:")[0]
+    #         logging.error(f"Failed to perform operations on records: {ex}")
+    #         raise DatabaseOperationException(
+    #             status_code=400,
+    #             detail={
+    #                 "error": error_only,
+    #                 "details": "see logs for further information",
+    #             },
+    #         )
+
     async def execute_many(self, records: List):
-        try:
-            async with self.async_db.get_db_session() as session:
-                session.add_all(records)
-                await session.commit()
+        ret_data: list = []
 
-                num_records = len(records)
-                logging.info(
-                    f"Record operations were successful. {num_records} records were created."
-                )
+        for index, record in enumerate(records):
+            try:
+                self.execute_one(record)
+                t = (index, True, None)
+            except DatabaseOperationException as ex:
+                t = (index, False, ex)
 
-                return records
-        except Exception as ex:
-            error_only = str(ex).split("[SQL:")[0]
-            logging.error(f"Failed to perform operations on records: {ex}")
-            raise DatabaseOperationException(
-                status_code=400,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            ret_data.append(t)
+
+        return ret_data

@@ -29,7 +29,6 @@ help:
 	@echo "  install       - Install required dependencies"
 	@echo "  prod      	   - Run the FastAPI application in production mode"
 	@echo "  dev           - Run the FastAPI application in development mode with hot-reloading"
-	@echo "  create_tables - Create the necessary tables in the database"
 	@echo "  black         - Format code using black"
 	@echo "  isort         - Sort imports using isort"
 	@echo "  autoflake     - Remove unused imports and variables"
@@ -54,5 +53,8 @@ test:
 	sed -i 's|<source>/workspaces/DevSetGo_Toolkit</source>|<source>/github/workspace/DevSetGo_Toolkit</source>|' /workspaces/DevSetGo_Toolkit/coverage.xml
 	coverage-badge -o coverage.svg -f
 
-runexample:
+run-example:
 	uvicorn example.main:app --port 5000 --workers 8
+
+run-example-dev:
+	uvicorn example.main:app --port 5000 --reload

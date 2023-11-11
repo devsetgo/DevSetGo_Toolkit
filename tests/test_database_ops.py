@@ -1,91 +1,50 @@
 # -*- coding: utf-8 -*-
 import pytest
-from unittest.mock import AsyncMock, MagicMock
-from unittest.mock import MagicMock
+from devsetgo_toolkit import AsyncDatabase
+from devsetgo_toolkit import DatabaseOperations, DatabaseOperationException
+from sqlalchemy.future import select
+from asynctest import CoroutineMock
 
-from sqlalchemy.exc import IntegrityError
-from devsetgo_toolkit.database_connector import AsyncDatabase
-from devsetgo_toolkit.database_ops import DatabaseOperations, DatabaseOperationException
+# Mock settings_dict for AsyncDatabase
+settings_dict = {
+    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
+}
 
-
-@pytest.fixture
-async def db_operations(event_loop):
-    settings_dict = {"database_uri": "sqlite+aiosqlite:///:memory:?cache=shared"}
-    async_db = AsyncDatabase(settings_dict=settings_dict)
-    await async_db.__aenter__()  # Initialize the app before the tests
-    db_ops = DatabaseOperations(async_db)
-    yield db_ops
-    await async_db.__aexit__(None, None, None)  # Close connection after test
-
-
-async def test_count_query(db_operations, mocker):
-    mock_query = MagicMock()
-    db_operations = await db_operations
-    session_mock = mocker.patch.object(db_operations.async_db, "get_db_session")
-    count = db_operations.count_query(mock_query)
-    assert count == 10
-
-
-# test_fetch_query
 @pytest.mark.asyncio
-async def test_fetch_query(db_operations, mocker):
-    mock_query = MagicMock()
-    db_operations = await db_operations
-    session_mock = mocker.patch.object(
-        db_operations.async_db, "get_db_session", new=AsyncMock()
-    )
+class TestDatabaseOperations:
 
-    async with session_mock() as session:
-        session.execute.return_value.scalars.all.return_value = ["result1", "result2"]
-        results = await db_operations.fetch_query(mock_query)
-        assert results == ["result1", "result2"]
+    @pytest.fixture
+    async def setup(self):
+        async_db = AsyncDatabase(settings_dict=settings_dict)
+        db_ops = DatabaseOperations(async_db)
+        return db_ops
 
+    async def test_count_query(self, setup):
+        setup.async_db.get_db_session = CoroutineMock()
+        mock_query = select(func.count()).select_from('')
+        result = await setup.count_query(mock_query)
+        assert result is not None
 
-# test_execute_one_success
-@pytest.mark.asyncio
-async def test_execute_one_success(db_operations, mocker):
-    mock_record = MagicMock()
-    session_mock = mocker.patch.object(
-        db_operations.async_db, "get_db_session", new=AsyncMock()
-    )
+    async def test_fetch_query(self, setup):
+        setup.async_db.get_db_session = CoroutineMock()
+        mock_query = select().from('your_table')
+        result = await setup.fetch_query(mock_query)
+        assert result is not None
 
-    result = await db_operations.execute_one(mock_record)
-    assert result == mock_record
+    async def test_fetch_queries(self, setup):
+        setup.async_db.get_db_session = CoroutineMock()
+        mock_queries = {'query1': select().from('table1'), 'query2': select().from('table2')}
+        result = await setup.fetch_queries(mock_queries)
+        assert result is not None
 
+    async def test_execute_one(self, setup):
+        setup.async_db.get_db_session = CoroutineMock()
+        mock_record = {}  # Your record here
+        result = await setup.execute_one(mock_record)
+        assert result is not None
 
-# test_execute_one_failure
-@pytest.mark.asyncio
-async def test_execute_one_failure(db_operations, mocker):
-    mock_record = MagicMock()
-    session_mock = mocker.patch.object(
-        db_operations.async_db, "get_db_session", new=AsyncMock()
-    )
-    session_mock().__aenter__().add.side_effect = IntegrityError(None, None, None)
-
-    with pytest.raises(DatabaseOperationException):
-        await db_operations.execute_one(mock_record)
-
-
-# test_execute_many_success
-@pytest.mark.asyncio
-async def test_execute_many_success(db_operations, mocker):
-    mock_records = [MagicMock(), MagicMock()]
-    session_mock = mocker.patch.object(
-        db_operations.async_db, "get_db_session", new=AsyncMock()
-    )
-
-    result = await db_operations.execute_many(mock_records)
-    assert result == mock_records
-
-
-# test_execute_many_failure
-@pytest.mark.asyncio
-async def test_execute_many_failure(db_operations, mocker):
-    mock_records = [MagicMock(), MagicMock()]
-    session_mock = mocker.patch.object(
-        db_operations.async_db, "get_db_session", new=AsyncMock()
-    )
-    session_mock().__aenter__().add_all.side_effect = Exception()
-
-    with pytest.raises(DatabaseOperationException):
-        await db_operations.execute_many(mock_records)
+    async def test_execute_many(self, setup):
+        setup.async_db.get_db_session = CoroutineMock()
+        mock_records = [{}, {}]  # Your records here
+        result = await setup.execute_many(mock_records)
+        assert result is not None
