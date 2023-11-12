@@ -30,7 +30,8 @@ config_log(
 )
 
 settings_dict = {
-    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
+    # "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
+    "database_uri": "postgresql+asyncpg://postgres:postgres@db/postgres",
 }
 
 async_db = AsyncDatabase(settings_dict=settings_dict)
