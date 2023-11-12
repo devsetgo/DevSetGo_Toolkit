@@ -23,9 +23,8 @@
 	"forwardPorts": [5000, 5432, 32080],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "pip install --user -r requirements.txt",
-	"postCreateCommand": "pip3 install --upgrade pip setuptools wheel",
-	"postCreateCommand": "pip3 install -r requirements.txt", //--use-deprecated=legacy-resolver",
+	"postCreateCommand": "pip3 install --upgrade pip setuptools wheel && pip3 install -r requirements.txt", //--use-deprecated=legacy-resolver",
+	"postStartCommand": "pip install -r requirements.txt", // Add this line to install requirements.txt after container start
 	// Configure tool-specific properties.
 	"customizations": {
 		// Configure properties specific to VS Code.
@@ -33,21 +32,16 @@
 			// Set *default* container specific settings.json values on container create.
 			"settings": {
 				"python.defaultInterpreterPath": "/usr/local/bin/python",
-				// "python.linting.enabled": true,
-				// "python.linting.pylintEnabled": true,
 				"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
 				"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
 				"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
-				// "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
-				// "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
-				// "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
-				// "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
-				// "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
-				// "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
 				"python.testing.pytestPath": "/usr/local/py-utils/bin/pytest"
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				"ms-vscode.cpptools-extension-pack",
 				"ms-vscode.cpptools",
 				"aaron-bond.better-comments",
 				"alefragnani.project-manager",
@@ -67,7 +61,6 @@
 				"ms-python.isort",
 				"ms-python.pylint",
 				"ms-python.python",
-				// "ms-python.vscode-pylance",
 				"ms-toolsai.jupyter",
 				"ms-toolsai.jupyter-keymap",
 				"ms-vscode.makefile-tools",
