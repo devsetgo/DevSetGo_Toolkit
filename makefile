@@ -61,9 +61,6 @@ run-example-dev:
 
 create-docs:
 	mkdocs build
-
-
-# cp /workspaces/devsetgo_lib/docs/index.md /workspaces/devsetgo_lib/README.md
-# cp /workspaces/devsetgo_lib/docs/contribute.md /workspaces/devsetgo_lib/CONTRIBUTING.md
-
-# mkdocs gh-deploy
+	cp /workspaces/DevSetGo_Toolkit/README.md /workspaces/DevSetGo_Toolkit/docs/index.md
+	cp /workspaces/DevSetGo_Toolkit/CONTRIBUTING.md /workspaces/DevSetGo_Toolkit/docs/contribute.md
+	mkdocs gh-deploy

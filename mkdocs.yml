@@ -3,7 +3,7 @@
 site_name: 'DevSetGo Toolkit'
 site_description: 'Tools for building APIs and using Aysnc SQLAlchemy'
 site_author: 'Mike Ryan'
-# site_url: 'https://squidfunk.github.io/mkdocs-material/'
+site_url: 'https://devsetgo.github.io/DevSetGo_Toolkit/'
 # Repository
 repo_name: 'devsetgo/DevSetGo_Toolkit'
 repo_url: 'https://github.com/devsetgo/devsetgo_toolkit'
@@ -14,6 +14,7 @@ copyright: 'Copyright &copy; 2023 Mike Ryan'
 nav:
     - Introduction: 'index.md'
     - QuickStart: 'quickstart.md'
+    - BaseSchema: 'baseschema.md'
     - HTTPCodes: 'httpcodes.md'
     - Contributing: 'contribute.md'
     - ChangeLog: 'changelog.md'
@@ -26,16 +27,10 @@ theme:
     - toc.follow
     - toc.integrate
     - navigation.top
-
+  icon:
+    logo: material/library
   name: 'material'
   palette:
-    # Toggle light mode
-    - scheme: default
-      primary: blue grey
-      accent: indigo
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
     # Toggle dark mode
     - scheme: slate
       primary: blue grey
@@ -43,6 +38,20 @@ theme:
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to dark mode
+    # Toggle light mode
+    - scheme: default
+      primary: blue
+      accent: green
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+  # logo:
+  #   icon:
+  #     repo: fontawesome/solid/people-carry
   language: en
   plugins:
     - search
