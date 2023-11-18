@@ -1,33 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-         <loc>https://devsetgo.github.io/DevSetGo_Toolkit/</loc>
-         <lastmod>2023-11-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://devsetgo.github.io/DevSetGo_Toolkit/baseschema/</loc>
-         <lastmod>2023-11-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://devsetgo.github.io/DevSetGo_Toolkit/changelog/</loc>
-         <lastmod>2023-11-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://devsetgo.github.io/DevSetGo_Toolkit/contribute/</loc>
-         <lastmod>2023-11-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://devsetgo.github.io/DevSetGo_Toolkit/httpcodes/</loc>
-         <lastmod>2023-11-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://devsetgo.github.io/DevSetGo_Toolkit/quickstart/</loc>
-         <lastmod>2023-11-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
 </urlset>
