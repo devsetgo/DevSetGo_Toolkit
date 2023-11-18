@@ -1,8 +1,7 @@
 
-site_name: DSG_LIB
 # Project information
-site_name: 'DSG_LIB'
-site_description: 'Common functions for Python applications. This is to increase reusability and limit rewritting the same functions in multiple applications. It also allows for defects to be addressed quickly and then be propigated across applications.'
+site_name: 'DevSetGo Toolkit'
+site_description: 'Tools for building APIs and using Aysnc SQLAlchemy'
 site_author: 'Mike Ryan'
 # site_url: 'https://squidfunk.github.io/mkdocs-material/'
 # Repository
@@ -17,23 +16,29 @@ nav:
     - QuickStart: 'quickstart.md'
     - HTTPCodes: 'httpcodes.md'
     - Contributing: 'contribute.md'
+    - ChangeLog: 'changelog.md'
 # Theme
 theme:
   features:
     - navigation.tabs
     - navigation.instant
+    - navigation.tabs.sticky
+    - toc.follow
+    - toc.integrate
+    - navigation.top
+
   name: 'material'
   palette:
     # Toggle light mode
     - scheme: default
-      primary: indigo
+      primary: blue grey
       accent: indigo
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
     # Toggle dark mode
     - scheme: slate
-      primary: blue
+      primary: blue grey
       accent: blue
       toggle:
         icon: material/toggle-switch-off-outline
@@ -41,6 +46,7 @@ theme:
   language: en
   plugins:
     - search
+    - offline
 
   # font:
   #   text: 'Roboto'

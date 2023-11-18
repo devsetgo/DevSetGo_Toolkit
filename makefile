@@ -58,3 +58,12 @@ run-example:
 
 run-example-dev:
 	uvicorn example.main:app --port 5000 --reload
+
+create-docs:
+	mkdocs build
+
+
+# cp /workspaces/devsetgo_lib/docs/index.md /workspaces/devsetgo_lib/README.md
+# cp /workspaces/devsetgo_lib/docs/contribute.md /workspaces/devsetgo_lib/CONTRIBUTING.md
+
+# mkdocs gh-deploy
