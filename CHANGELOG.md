@@ -7,16 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 - Tools
-- HTTP Codes
 - User library
-- Base Schema
 - Database Operations
 - Database Connector [partial]
 
-## [0.1.0] - Initial Beta Release
+## [0.0.1] - Initial Beta Release
 ### Added
 - Project layout
-- Basic tests
+- Start of basic tests
 - Simple functions
-    - Database Connector
+    - HTTP Status Codes
 - Start of Documentation
