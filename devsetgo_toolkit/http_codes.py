@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Dictionary of HTTP error codes and their descriptions based on the HTTP/1.1 specification.
+.. module:: http_codes
+   :platform: Unix, Windows
+   :synopsis: Dictionary of HTTP error codes and their descriptions based on the HTTP/1.1 specification.
 The dictionary provides a mapping between HTTP error codes and their description strings.
 Use example:
 - `http_codes` can be used to define or handle custom error responses for an API,
 - GET_CODES, POST_CODES, PUT_CODES, PATCH_CODES, and DELETE_CODES can be used to define
     HTTP error codes commonly encountered with each type of request method in an API.
+
+.. moduleauthor:: Mike Ryan <mike@devsetgo.com>
+
 """
 
 ALL_HTTP_CODES = {
