@@ -30,7 +30,6 @@ import datetime
 from cpuinfo import get_cpu_info
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from fastapi.responses import ORJSONResponse
 from loguru import logger
 
 # from .database_connector  import AsyncDatabase

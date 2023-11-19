@@ -18,15 +18,19 @@ The application includes a /users/count endpoint that returns the total number o
 
 The application includes a /api/v1/tools endpoint and a /api/health endpoint, which are defined in separate routers.
 """
+import logging
+import random
+import string
+
 # Import necessary libraries and modules
 from datetime import datetime
 from typing import List
 
 from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
 from fastapi import HTTPException
 from fastapi import Query
 from fastapi import status
+from fastapi.responses import ORJSONResponse
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -39,14 +43,9 @@ from sqlalchemy import String
 from devsetgo_toolkit import AsyncDatabase
 from devsetgo_toolkit import DatabaseOperations
 from devsetgo_toolkit import SchemaBase
-from example import health_check
 from devsetgo_toolkit.logger import logger
 
-
-
-import logging
- 
-logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.WARNING)
+logging.basicConfig(filename="example.log", encoding="utf-8", level=logging.WARNING)
 
 # Define a dictionary with the settings for the database connection
 settings_dict = {
@@ -112,99 +111,129 @@ class UserList(BaseModel):
     users: List[UserBase]  # List of users
 
 
+# Create an instance of the FastAPI class
 app = FastAPI(
-    title="FastAPI Example",
-    description="This is an example of a FastAPI application.",
-    version="0.1.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json",
-    debug=True,
-    middleware=[],
-    routes=[],
-    default_response_class=ORJSONResponse,
+    title="FastAPI Example",  # The title of the API
+    description="This is an example of a FastAPI application.",  # A brief description of the API
+    version="0.1.0",  # The version of the API
+    docs_url="/docs",  # The URL where the API documentation will be served
+    redoc_url="/redoc",  # The URL where the ReDoc documentation will be served
+    openapi_url="/openapi.json",  # The URL where the OpenAPI schema will be served
+    debug=True,  # Enable debug mode
+    middleware=[],  # A list of middleware to include in the application
+    routes=[],  # A list of routes to include in the application
+    default_response_class=ORJSONResponse,  # The default response class to use
 )
 
 
+# This function is run when the FastAPI application starts up
 @app.on_event("startup")
 async def startup_event():
+    # Create the tables in the database
     await async_db.create_tables()
 
 
+# This function is run when the FastAPI application shuts down
 @app.on_event("shutdown")
 async def shutdown_event():
-    # add your code here
+    # Add any cleanup code here
     pass
 
 
+# Define a route for the root ("/") URL
 @app.get("/")
 async def root():
+    # When this route is accessed, redirect the client to "/docs" with a 307 status code
     return RedirectResponse("/docs", status_code=307)
 
 
+# Define a route for the "/users/count" URL
 @app.get("/users/count")
 async def count_users():
+    # Execute a count query on the User table
     count = await db_ops.count_query(Select(User))
+    # Return the count as a JSON object
     return {"count": count}
 
 
+# Define a route for the "/users" URL
 @app.get("/users")
 async def read_users(
-    limit: int = Query(None, alias="limit", ge=1, le=1000),
-    offset: int = Query(None, alias="offset"),
+    limit: int = Query(
+        None, alias="limit", ge=1, le=1000
+    ),  # Query parameter for the maximum number of users to return
+    offset: int = Query(
+        None, alias="offset"
+    ),  # Query parameter for the number of users to skip before starting to return users
 ):
+    # If no limit is provided, default to 500
     if limit is None:
         limit = 500
 
+    # If no offset is provided, default to 0
     if offset is None:
         offset = 0
 
+    # Create a SELECT query for the User table
     query_count = Select(User)
+    # Execute the count query to get the total number of users
     total_count = await db_ops.count_query(query=query_count)
+    # Create a SELECT query for the User table
     query = Select(User)
+    # Execute the SELECT query to get the users, with the provided limit and offset
     users = await db_ops.fetch_query(query=query, limit=limit, offset=offset)
+    # Return the total number of users, the number of users returned, and the users themselves
     return {
         "query_data": {"total_count": total_count, "count": len(users)},
         "users": users,
     }
 
 
+# Define a route for the "/users/" URL that responds to POST requests
 @app.post("/users/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserBase):
+    # Create a new User instance from the provided data
     db_user = User(
         name_first=user.name_first, name_last=user.name_last, email=user.email
     )
+    # Insert the new user into the database
     created_user = await db_ops.execute_one(db_user)
+    # Return the created user
     return created_user
 
 
+# Define a route for the "/users/bulk/" URL that responds to POST requests
 @app.post(
     "/users/bulk/",
     response_model=List[UserResponse],
     status_code=status.HTTP_201_CREATED,
 )
 async def create_users(user_list: UserList):
+    # Create a list of new User instances from the provided data
     db_users = [
         User(name_first=user.name_first, name_last=user.name_last, email=user.email)
         for user in user_list.users
     ]
+    # Insert the new users into the database
     created_users = await db_ops.execute_many(db_users)
+    # Log the created users
     logger.info(f"created_users: {created_users}")
+    # Return the created users
     return created_users
 
 
-import random
-import string
-
+# Define a route for the "/users/bulk/auto" URL
 @app.get(
     "/users/bulk/auto",
     response_model=List[UserResponse],
     status_code=status.HTTP_201_CREATED,
 )
 async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
+    # Initialize an empty list to hold the new User instances
     db_users: list = []
+    # Generate the specified quantity of users
     for i in range(qty):
-        # Generate a random first name, last name
+        # Generate a random first name and last name
         name_first = "".join(random.choices(string.ascii_lowercase, k=5))
         name_last = "".join(random.choices(string.ascii_lowercase, k=5))
 
@@ -214,26 +243,37 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
         )
         email = f"user{random_email_part}@yahoo.com"
 
+        # Create a new User instance and add it to the list
         db_user = User(name_first=name_first, name_last=name_last, email=email)
         db_users.append(db_user)
 
+    # Insert the new users into the database
     created_users = await db_ops.execute_many(db_users)
-    
+
+    # Log the number of created users
     logger.info(f"created_users: {len(created_users)}")
+    # Return the created users
     return created_users
 
 
-
+# Define a route for the "/users/{user_id}" URL
 @app.get("/users/{user_id}", response_model=UserResponse)
 async def read_user(user_id: str):
+    # Execute a SELECT query to get the user with the specified ID
     users = await db_ops.fetch_query(Select(User).where(User._id == user_id))
+    # If no users were found, raise a 404 error
     if not users:
         logger.info(f"user not found: {user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Log the found user
     logger.info(f"users: {users}")
+    # Return the found user
     return users[0]
 
+
+# Define a route for the "/health/status" URL
 @app.get("/health/status")
 async def health():
+    # Return the health status of the application
     return {"status": "UP"}

@@ -19,7 +19,6 @@ db_ops = DatabaseOperations(async_db)
 """
 
 import time
-import logging
 
 # Importing required modules and libraries
 from typing import List
@@ -30,8 +29,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 
 # Importing database connector module
-from devsetgo_toolkit.database_connector import AsyncDatabase
 from devsetgo_toolkit.logger import logger
+
 
 # Custom Exception Class
 class DatabaseOperationException(Exception):
@@ -104,13 +103,13 @@ class DatabaseOperations:
 
     async def execute_many(self, records: List):
         try:
-            t0 =time.time()
+            t0 = time.time()
             async with self.async_db.get_db_session() as session:
                 session.add_all(records)
                 await session.commit()
 
                 num_records = len(records)
-                t1 = time.time()-t0
+                t1 = time.time() - t0
                 logger.info(
                     f"Record operations were successful. {num_records} records were created in {t1:.4f} seconds."
                 )
@@ -126,7 +125,6 @@ class DatabaseOperations:
                     "details": "see logs for further information",
                 },
             )
-
 
     # async def execute_many(self, records: List):
     #     start_time = time.time()  # Start the timer
@@ -150,6 +148,6 @@ class DatabaseOperations:
 
     #     from devsetgo_toolkit.logger import logger
     #     # Log the duration and the number of successful record creations
-    #     logger.debug(f'Execution time for execute_many function: {duration} seconds. Number of records created: {success_count}. Number of records failed: {fail_count}') 
+    #     logger.debug(f'Execution time for execute_many function: {duration} seconds. Number of records created: {success_count}. Number of records failed: {fail_count}')
 
     #     return ret_data  # Return the result

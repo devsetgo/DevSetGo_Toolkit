@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
-from uuid import UUID
 from uuid import uuid4
 
 import pytest
 from sqlalchemy import Column
-from sqlalchemy import DateTime
 from sqlalchemy import String
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import declarative_base
 

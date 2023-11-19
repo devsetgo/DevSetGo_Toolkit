@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
 
 from devsetgo_toolkit import ALL_HTTP_CODES
 from devsetgo_toolkit import generate_code_dict

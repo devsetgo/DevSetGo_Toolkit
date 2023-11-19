@@ -19,7 +19,7 @@ def call_code():
     lib.http_get.restype = c_long
 
     # Call the function
-    url = "http://localhost:5000/health/status".encode('utf-8')
+    url = "http://localhost:5000/health/status".encode("utf-8")
     # url = "http://localhost:5000/users?limit=100&offset=1".encode("utf-8")
     # # url ="http://localhost:5000/users/bulk/auto?qty=1000".encode("utf-8")
     # url='http://localhost:5000/users?limit=100&offset=2'.encode('utf-8')
