@@ -18,10 +18,12 @@ db_ops = DatabaseOperations(async_db)
 
 """
 
+import time
 import logging
 
 # Importing required modules and libraries
 from typing import List
+
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
@@ -29,7 +31,7 @@ from sqlalchemy.future import select
 
 # Importing database connector module
 from devsetgo_toolkit.database_connector import AsyncDatabase
-
+from devsetgo_toolkit.logger import logger
 
 # Custom Exception Class
 class DatabaseOperationException(Exception):
@@ -67,10 +69,10 @@ class DatabaseOperations:
             async with self.async_db.get_db_session() as session:
                 session.add(record)
                 await session.commit()
-            logging.info("Record operation successful")
+            logger.info("Record operation successful")
             return record
         except IntegrityError as ex:
-            logging.error(f"IntegrityError on record: {ex}")
+            logger.error(f"IntegrityError on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             raise DatabaseOperationException(
                 status_code=400,
@@ -80,7 +82,7 @@ class DatabaseOperations:
                 },
             )
         except SQLAlchemyError as ex:
-            logging.error(f"SQLAlchemyError on record: {ex}")
+            logger.error(f"SQLAlchemyError on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             raise DatabaseOperationException(
                 status_code=400,
@@ -90,7 +92,7 @@ class DatabaseOperations:
                 },
             )
         except Exception as ex:
-            logging.error(f"Exception Failed to perform operation on record: {ex}")
+            logger.error(f"Exception Failed to perform operation on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             raise DatabaseOperationException(
                 status_code=400,
@@ -100,39 +102,54 @@ class DatabaseOperations:
                 },
             )
 
-    # async def execute_many(self, records: List):
-    #     try:
-    #         async with self.async_db.get_db_session() as session:
-    #             session.add_all(records)
-    #             await session.commit()
-
-    #             num_records = len(records)
-    #             logging.info(
-    #                 f"Record operations were successful. {num_records} records were created."
-    #             )
-
-    #             return records
-    #     except Exception as ex:
-    #         error_only = str(ex).split("[SQL:")[0]
-    #         logging.error(f"Failed to perform operations on records: {ex}")
-    #         raise DatabaseOperationException(
-    #             status_code=400,
-    #             detail={
-    #                 "error": error_only,
-    #                 "details": "see logs for further information",
-    #             },
-    #         )
-
     async def execute_many(self, records: List):
-        ret_data: list = []
+        try:
+            t0 =time.time()
+            async with self.async_db.get_db_session() as session:
+                session.add_all(records)
+                await session.commit()
 
-        for index, record in enumerate(records):
-            try:
-                self.execute_one(record)
-                t = (index, True, None)
-            except DatabaseOperationException as ex:
-                t = (index, False, ex)
+                num_records = len(records)
+                t1 = time.time()-t0
+                logger.info(
+                    f"Record operations were successful. {num_records} records were created in {t1:.4f} seconds."
+                )
 
-            ret_data.append(t)
+                return records
+        except Exception as ex:
+            error_only = str(ex).split("[SQL:")[0]
+            logger.error(f"Failed to perform operations on records: {ex}")
+            raise DatabaseOperationException(
+                status_code=400,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
 
-        return ret_data
+
+    # async def execute_many(self, records: List):
+    #     start_time = time.time()  # Start the timer
+
+    #     ret_data: list = []
+    #     success_count = 0  # Counter for successful record creations
+    #     fail_count = 0  # Counter for failed record creations
+
+    #     for index, record in enumerate(records):
+    #         try:
+    #             self.execute_one(record)
+    #             t = (index, True, None)
+    #             success_count += 1  # Increment the counter
+    #         except DatabaseOperationException as ex:
+    #             t = (index, False, ex)
+    #             fail_count += 1
+    #         ret_data.append(t)
+
+    #     end_time = time.time()  # End the timer
+    #     duration = end_time - start_time  # Calculate the duration
+
+    #     from devsetgo_toolkit.logger import logger
+    #     # Log the duration and the number of successful record creations
+    #     logger.debug(f'Execution time for execute_many function: {duration} seconds. Number of records created: {success_count}. Number of records failed: {fail_count}') 
+
+    #     return ret_data  # Return the result

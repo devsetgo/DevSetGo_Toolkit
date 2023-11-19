@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, DateTime, String
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import Session
-from uuid import uuid4, UUID
 import datetime
+from uuid import UUID
+from uuid import uuid4
+
 import pytest
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import String
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import declarative_base
+
 from devsetgo_toolkit import SchemaBase
 
 Base = declarative_base()

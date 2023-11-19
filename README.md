@@ -27,12 +27,12 @@ SonarCloud:
 A set of common functions wrapped into a package, so I don't have to write the same code over and over. Oh and it makes the code more reusable.... or something like that.
 
 # Documentation
-Can be found here: https://devsetgo.github.io/DevSetGo_Toolkit/
+Can be found [here](https://devsetgo.github.io/DevSetGo_Toolkit/).
 
 ### Testing
 Test on Windows and Linux. Since I work in Windows and Linux, testing is mostly there. Should work on MacOS, but let me know if there is an issue.
 
 ### Library Functions
 
-- [HTTP Codes](https://devsetgo.github.io/DevSetGo_Toolkit/httpcodes)
-- [Base Schema](https://devsetgo.github.io/DevSetGo_Toolkit/baseschema)
+- [HTTP Codes](/site/httpcodes/)
+- [Base Schema](/site/baseschema/)

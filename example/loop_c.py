@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from ctypes import cdll, c_char_p, c_long
 import time
-from statistics import mean, median
+from ctypes import c_char_p
+from ctypes import c_long
+from ctypes import cdll
+from statistics import mean
+from statistics import median
+
 from tqdm import tqdm
 
 
@@ -15,8 +19,10 @@ def call_code():
     lib.http_get.restype = c_long
 
     # Call the function
-    # url = "http://localhost:5000/api/health/status".encode('utf-8')
-    url = "http://localhost:5000/users?limit=100&offset=1".encode("utf-8")
+    url = "http://localhost:5000/health/status".encode('utf-8')
+    # url = "http://localhost:5000/users?limit=100&offset=1".encode("utf-8")
+    # # url ="http://localhost:5000/users/bulk/auto?qty=1000".encode("utf-8")
+    # url='http://localhost:5000/users?limit=100&offset=2'.encode('utf-8')
 
     status_code = lib.http_get(url)
 
@@ -29,29 +35,9 @@ async def run(n):
     return await asyncio.gather(*futures)
 
 
-import subprocess
-
-
-def count_processes(process_name):
-    process = subprocess.Popen(["ps", "-ef"], stdout=subprocess.PIPE)
-    out, err = process.communicate()
-
-    lines = str(out).split("\\n")
-    print(lines)
-    # Filter out the parent process
-    worker_lines = [
-        line for line in lines if process_name in line and "parent process" not in line
-    ]
-
-    return len(worker_lines)
-
-
-# print(count_processes('uvicorn'))
-
-
 if __name__ == "__main__":
-    n = 10000
-    loops = 2
+    n = 1000
+    loops = 10
     req_list = []
     t0 = time.time()
     response_list = []

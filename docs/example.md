@@ -1,38 +1,11 @@
-# Base Schema Module
-
-This module defines the base schema for database models in the application. It uses SQLAlchemy as the ORM and provides a `SchemaBase` class that all other models should inherit from. The `SchemaBase` class includes common columns that are needed for most models like `_id`, `date_created`, and `date_updated`.
-
-## Columns
-
-- `_id`: A unique identifier for each record. It's a string representation of a UUID.
-- `date_created`: The date and time when a particular row was inserted into the table. It defaults to the current UTC time when the instance is created.
-- `date_updated`: The date and time when a particular row was last updated. It defaults to the current UTC time whenever the instance is updated.
-
-## Usage
-
-To use this module, import it and extend the `SchemaBase` class to create new database models. Here's an example:
-
-```python
-from base_schema import SchemaBase
-from sqlalchemy import Column, Integer, String
-
-class User(SchemaBase):
-    __tablename__ = 'users'
-
-    name = Column(String, index=True)
-    age = Column(Integer)
-
-```
-
-### Full Example
-This example can be found in the example [folder of the repo](https://github.com/devsetgo/DevSetGo_Toolkit/tree/main/example).
+# Example
 
 ```python
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from typing import List
+import 
 
-from dsg_lib.logging_config import config_log
 from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -106,12 +79,15 @@ class UserList(BaseModel):
     users: List[UserBase]
 
 
-app = FastAPI(title="FastAPI Base Schema Example", description="Using Base Schema class with a FastAPI app.")
+app = FastAPI()
 
 
 @app.on_event("startup")
 async def startup_event():
     await async_db.create_tables()
+
+
+
 
 @app.get("/")
 async def root():
@@ -203,5 +179,23 @@ async def read_user(user_id: str):
     if not users:
         raise HTTPException(status_code=404, detail="User not found")
     return users[0]
+
+
+# Tools router
+# app.include_router(
+#     tools.router,
+#     prefix="/api/v1/tools",
+#     tags=["tools"],
+#     responses=router_responses,
+# )
+
+# Health router
+app.include_router(
+    health_check.router,
+    prefix="/api/health",
+    tags=["System Health"],
+    responses=router_responses,
+)
+
 
 ```

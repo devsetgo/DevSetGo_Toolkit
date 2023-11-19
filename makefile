@@ -3,10 +3,15 @@ PYTHON = python3
 PIP = $(PYTHON) -m pip
 PYTEST = $(PYTHON) -m pytest
 
+EXAMPLE_PATH = example
 SERVICE_PATH = devsetgo_toolkit
 TESTS_PATH = tests
 SQLITE_PATH = _sqlite_db
 LOG_PATH = log
+
+PORT = 5000
+WORKER = 8
+LOG_LEVEL = debug
 
 VENV_PATH = _venv
 REQUIREMENTS_PATH = requirements.txt
@@ -16,10 +21,13 @@ REQUIREMENTS_PATH = requirements.txt
 
 autoflake:
 	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(SERVICE_PATH)
+	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(TESTS_PATH)
+	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(EXAMPLE_PATH)
 
 black:
 	black $(SERVICE_PATH)
 	black $(TESTS_PATH)
+	black $(EXAMPLE_PATH)
 
 cleanup: isort black autoflake
 
@@ -36,6 +44,7 @@ help:
 isort:
 	isort $(SERVICE_PATH)
 	isort $(TESTS_PATH)
+	isort $(EXAMPLE_PATH)
 
 install:
 	$(PIP) install -r $(REQUIREMENTS_PATH)
@@ -54,10 +63,10 @@ test:
 	coverage-badge -o coverage.svg -f
 
 run-example:
-	uvicorn example.main:app --port 5000 --workers 8
+	uvicorn example.main:app --port ${PORT} --workers ${WORKER} --log-level $(shell echo ${LOG_LEVEL} | tr A-Z a-z)
 
 run-example-dev:
-	uvicorn example.main:app --port 5000 --reload
+	uvicorn example.main:app --port ${PORT} --reload
 
 create-docs:
 	mkdocs build
