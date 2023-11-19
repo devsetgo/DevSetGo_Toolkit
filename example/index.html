@@ -12,13 +12,9 @@
         <meta name="author" content="Mike Ryan">
       
       
-        <link rel="canonical" href="https://devsetgo.github.io/DevSetGo_Toolkit/baseschema/">
+        <link rel="canonical" href="https://devsetgo.github.io/DevSetGo_Toolkit/example/">
       
       
-        <link rel="prev" href="../quickstart/">
-      
-      
-        <link rel="next" href="../httpcodes/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -26,7 +22,7 @@
     
     
       
-        <title>BaseSchema - DevSetGo Toolkit</title>
+        <title>Example - DevSetGo Toolkit</title>
       
     
     
@@ -81,7 +77,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#base-schema-module" class="md-skip">
+        <a href="#example" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              BaseSchema
+              Example
             
           </span>
         </div>
@@ -247,11 +243,9 @@
         
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../baseschema/" class="md-tabs__link">
         
   
     
@@ -409,29 +403,9 @@
       
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    BaseSchema
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../baseschema/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -440,53 +414,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#columns" class="md-nav__link">
-    Columns
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#full-example" class="md-nav__link">
-    Full Example
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -566,181 +493,244 @@
   
 
 
-<h1 id="base-schema-module">Base Schema Module<a class="headerlink" href="#base-schema-module" title="Permanent link">&para;</a></h1>
-<p>This module defines the base schema for database models in the application. It uses SQLAlchemy as the ORM and provides a <code>SchemaBase</code> class that all other models should inherit from. The <code>SchemaBase</code> class includes common columns that are needed for most models like <code>_id</code>, <code>date_created</code>, and <code>date_updated</code>.</p>
-<h2 id="columns">Columns<a class="headerlink" href="#columns" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>_id</code>: A unique identifier for each record. It's a string representation of a UUID.</li>
-<li><code>date_created</code>: The date and time when a particular row was inserted into the table. It defaults to the current UTC time when the instance is created.</li>
-<li><code>date_updated</code>: The date and time when a particular row was last updated. It defaults to the current UTC time whenever the instance is updated.</li>
-</ul>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<p>To use this module, import it and extend the <code>SchemaBase</code> class to create new database models. Here's an example:</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">base_schema</span> <span class="kn">import</span> <span class="n">SchemaBase</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span>
-
-<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">SchemaBase</span><span class="p">):</span>
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;users&#39;</span>
-
-    <span class="n">name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">age</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">)</span>
-</code></pre></div>
-
-<h3 id="full-example">Full Example<a class="headerlink" href="#full-example" title="Permanent link">&para;</a></h3>
-<p>This example can be found in the example <a href="https://github.com/devsetgo/DevSetGo_Toolkit/tree/main/example">folder of the repo</a>.</p>
+<h1 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h1>
+<p>This is a full example using FastAPI for all of the library functions.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines the FastAPI application and its endpoints.</span>
+
+<span class="sd">The application uses SQLAlchemy for database operations and Pydantic for request and response models. It includes endpoints for creating, reading, and counting users. It also includes a health check endpoint and a tools endpoint.</span>
+
+<span class="sd">The User model is defined with first name, last name, and email fields. The UserBase Pydantic model is used for request validation when creating a new user, and the UserResponse Pydantic model is used for the response.</span>
+
+<span class="sd">The application uses the AsyncDatabase and DatabaseOperations classes from the devsetgo_toolkit library for asynchronous database operations.</span>
+
+<span class="sd">The application is configured to log to a file with a custom format and rotation policy.</span>
+
+<span class="sd">The application includes a startup event that creates the database tables if they don&#39;t exist.</span>
+
+<span class="sd">The application&#39;s root endpoint redirects to the /docs endpoint, which provides an interactive API documentation.</span>
+
+<span class="sd">The application includes a /users/count endpoint that returns the total number of users, a /users endpoint that returns a list of users with pagination, a /users/ endpoint that creates a new user, a /users/bulk/ endpoint that creates multiple users, a /users/bulk/auto endpoint that automatically generates and creates multiple users, and a /users/{user_id} endpoint that returns the details of a specific user.</span>
+
+<span class="sd">The application includes a /api/v1/tools endpoint and a /api/health endpoint, which are defined in separate routers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="c1"># Import necessary libraries and modules</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">dsg_lib.logging_config</span> <span class="kn">import</span> <span class="n">config_log</span>
-<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">Query</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">HTTPException</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Query</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">status</span>
+<span class="kn">from</span> <span class="nn">fastapi.responses</span> <span class="kn">import</span> <span class="n">ORJSONResponse</span>
 <span class="kn">from</span> <span class="nn">fastapi.responses</span> <span class="kn">import</span> <span class="n">RedirectResponse</span>
-<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">EmailStr</span><span class="p">,</span> <span class="n">Field</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ConfigDict</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">EmailStr</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">Field</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Select</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">String</span>
 
-<span class="c1"># from sqlalchemy.future import select</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Select</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">devsetgo_toolkit</span> <span class="kn">import</span> <span class="n">AsyncDatabase</span>
+<span class="kn">from</span> <span class="nn">devsetgo_toolkit</span> <span class="kn">import</span> <span class="n">DatabaseOperations</span>
+<span class="kn">from</span> <span class="nn">devsetgo_toolkit</span> <span class="kn">import</span> <span class="n">SchemaBase</span>
+<span class="kn">from</span> <span class="nn">devsetgo_toolkit.logger</span> <span class="kn">import</span> <span class="n">logger</span>
 
-<span class="kn">from</span> <span class="nn">example</span> <span class="kn">import</span> <span class="n">health_check</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;example.log&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 
-<span class="c1"># , tools</span>
-<span class="c1"># from .database_ops import DatabaseOperations</span>
-<span class="c1"># from .database_connector import AsyncDatabase</span>
-<span class="c1"># from .base_schema import SchemaBase</span>
-<span class="kn">from</span> <span class="nn">devsetgo_toolkit</span> <span class="kn">import</span> <span class="n">AsyncDatabase</span><span class="p">,</span> <span class="n">DatabaseOperations</span><span class="p">,</span> <span class="n">SchemaBase</span>
-
-<span class="n">config_log</span><span class="p">(</span>
-    <span class="n">logging_directory</span><span class="o">=</span><span class="s2">&quot;logs&quot;</span><span class="p">,</span>
-    <span class="n">log_name</span><span class="o">=</span><span class="s2">&quot;log.log&quot;</span><span class="p">,</span>
-    <span class="n">logging_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
-    <span class="n">log_rotation</span><span class="o">=</span><span class="s2">&quot;100 MB&quot;</span><span class="p">,</span>
-    <span class="n">log_retention</span><span class="o">=</span><span class="s2">&quot;1 days&quot;</span><span class="p">,</span>
-    <span class="n">log_backtrace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">log_format</span><span class="o">=</span><span class="s2">&quot;{time:YYYY-MM-DD at HH:mm:ss} | </span><span class="si">{level}</span><span class="s2"> | </span><span class="si">{message}</span><span class="s2">&quot;</span><span class="p">,</span>
-    <span class="n">log_serializer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-
+<span class="c1"># Define a dictionary with the settings for the database connection</span>
 <span class="n">settings_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># &quot;database_uri&quot;: &quot;sqlite+aiosqlite:///:memory:?cache=shared&quot;,</span>
-    <span class="s2">&quot;database_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;postgresql+asyncpg://postgres:postgres@db/postgres&quot;</span><span class="p">,</span>
+    <span class="c1"># &quot;database_uri&quot;: &quot;sqlite+aiosqlite:///:memory:?cache=shared&quot;,  # SQLite connection string (commented out)</span>
+    <span class="s2">&quot;database_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;postgresql+asyncpg://postgres:postgres@db/postgres&quot;</span><span class="p">,</span>  <span class="c1"># PostgreSQL connection string</span>
 <span class="p">}</span>
 
+<span class="c1"># Create an instance of AsyncDatabase with the settings from settings_dict</span>
 <span class="n">async_db</span> <span class="o">=</span> <span class="n">AsyncDatabase</span><span class="p">(</span><span class="n">settings_dict</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">)</span>
+
+<span class="c1"># Create an instance of DatabaseOperations with the AsyncDatabase instance</span>
 <span class="n">db_ops</span> <span class="o">=</span> <span class="n">DatabaseOperations</span><span class="p">(</span><span class="n">async_db</span><span class="p">)</span>
 
 
+<span class="c1"># User class inherits from SchemaBase and async_db.Base</span>
+<span class="c1"># This class represents the User table in the database</span>
 <span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">SchemaBase</span><span class="p">,</span> <span class="n">async_db</span><span class="o">.</span><span class="n">Base</span><span class="p">):</span>
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;users&quot;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;users&quot;</span>  <span class="c1"># Name of the table in the database</span>
 
-    <span class="n">name_first</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">name_last</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">email</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Define the columns of the table</span>
+    <span class="n">name_first</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># First name of the user</span>
+    <span class="n">name_last</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Last name of the user</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span>
+        <span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>  <span class="c1"># Email of the user, must be unique</span>
 
 
+<span class="c1"># UserBase class inherits from BaseModel</span>
+<span class="c1"># This class is used for request validation when creating a new user</span>
 <span class="k">class</span> <span class="nc">UserBase</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="n">name_first</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="o">...</span><span class="p">,</span>
-        <span class="c1"># alias=&quot;firstName&quot;,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;the users first or given name&quot;</span><span class="p">,</span>
-        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">],</span>
+    <span class="n">name_first</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>  <span class="c1"># First name of the user</span>
+        <span class="o">...</span><span class="p">,</span>  <span class="c1"># This means that the field is required</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;the users first or given name&quot;</span><span class="p">,</span>  <span class="c1"># Description of the field</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">],</span>  <span class="c1"># Example of a valid input</span>
     <span class="p">)</span>
-    <span class="n">name_last</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="o">...</span><span class="p">,</span>
-        <span class="c1"># alias=&quot;lastName&quot;,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;the users last or surname name&quot;</span><span class="p">,</span>
-        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Fruit&quot;</span><span class="p">],</span>
+    <span class="n">name_last</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>  <span class="c1"># Last name of the user</span>
+        <span class="o">...</span><span class="p">,</span>  <span class="c1"># This means that the field is required</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;the users last or surname name&quot;</span><span class="p">,</span>  <span class="c1"># Description of the field</span>
+        <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Fruit&quot;</span><span class="p">],</span>  <span class="c1"># Example of a valid input</span>
     <span class="p">)</span>
-    <span class="n">email</span><span class="p">:</span> <span class="n">EmailStr</span>
+    <span class="n">email</span><span class="p">:</span> <span class="n">EmailStr</span>  <span class="c1"># Email of the user, must be a valid email address</span>
 
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">from_attributes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
+        <span class="n">from_attributes</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>  <span class="c1"># Configuration for the Pydantic model</span>
 
 
+<span class="c1"># UserResponse class inherits from UserBase</span>
+<span class="c1"># This class is used for the response when retrieving a user</span>
 <span class="k">class</span> <span class="nc">UserResponse</span><span class="p">(</span><span class="n">UserBase</span><span class="p">):</span>
-    <span class="n">_id</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">date_created</span><span class="p">:</span> <span class="n">datetime</span>
-    <span class="n">date_updated</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">_id</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># ID of the user</span>
+    <span class="n">date_created</span><span class="p">:</span> <span class="n">datetime</span>  <span class="c1"># Date when the user was created</span>
+    <span class="n">date_updated</span><span class="p">:</span> <span class="n">datetime</span>  <span class="c1"># Date when the user was last updated</span>
 
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">from_attributes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
+        <span class="n">from_attributes</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>  <span class="c1"># Configuration for the Pydantic model</span>
 
 
+<span class="c1"># UserList class inherits from BaseModel</span>
+<span class="c1"># This class is used for the response when retrieving a list of users</span>
 <span class="k">class</span> <span class="nc">UserList</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="n">users</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">UserBase</span><span class="p">]</span>
+    <span class="n">users</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">UserBase</span><span class="p">]</span>  <span class="c1"># List of users</span>
 
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;FastAPI Base Schema Example&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Using Base Schema class with a FastAPI app.&quot;</span><span class="p">)</span>
+<span class="c1"># Create an instance of the FastAPI class</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;FastAPI Example&quot;</span><span class="p">,</span>  <span class="c1"># The title of the API</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is an example of a FastAPI application.&quot;</span><span class="p">,</span>  <span class="c1"># A brief description of the API</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>  <span class="c1"># The version of the API</span>
+    <span class="n">docs_url</span><span class="o">=</span><span class="s2">&quot;/docs&quot;</span><span class="p">,</span>  <span class="c1"># The URL where the API documentation will be served</span>
+    <span class="n">redoc_url</span><span class="o">=</span><span class="s2">&quot;/redoc&quot;</span><span class="p">,</span>  <span class="c1"># The URL where the ReDoc documentation will be served</span>
+    <span class="n">openapi_url</span><span class="o">=</span><span class="s2">&quot;/openapi.json&quot;</span><span class="p">,</span>  <span class="c1"># The URL where the OpenAPI schema will be served</span>
+    <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable debug mode</span>
+    <span class="n">middleware</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># A list of middleware to include in the application</span>
+    <span class="n">routes</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># A list of routes to include in the application</span>
+    <span class="n">default_response_class</span><span class="o">=</span><span class="n">ORJSONResponse</span><span class="p">,</span>  <span class="c1"># The default response class to use</span>
+<span class="p">)</span>
 
 
+<span class="c1"># This function is run when the FastAPI application starts up</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">&quot;startup&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">startup_event</span><span class="p">():</span>
+    <span class="c1"># Create the tables in the database</span>
     <span class="k">await</span> <span class="n">async_db</span><span class="o">.</span><span class="n">create_tables</span><span class="p">()</span>
 
+
+<span class="c1"># This function is run when the FastAPI application shuts down</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">&quot;shutdown&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">shutdown_event</span><span class="p">():</span>
+    <span class="c1"># Add any cleanup code here</span>
+    <span class="k">pass</span>
+
+
+<span class="c1"># Define a route for the root (&quot;/&quot;) URL</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">root</span><span class="p">():</span>
+    <span class="c1"># When this route is accessed, redirect the client to &quot;/docs&quot; with a 307 status code</span>
     <span class="k">return</span> <span class="n">RedirectResponse</span><span class="p">(</span><span class="s2">&quot;/docs&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">307</span><span class="p">)</span>
 
 
+<span class="c1"># Define a route for the &quot;/users/count&quot; URL</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/users/count&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">count_users</span><span class="p">():</span>
+    <span class="c1"># Execute a count query on the User table</span>
     <span class="n">count</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">count_query</span><span class="p">(</span><span class="n">Select</span><span class="p">(</span><span class="n">User</span><span class="p">))</span>
+    <span class="c1"># Return the count as a JSON object</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="n">count</span><span class="p">}</span>
 
 
+<span class="c1"># Define a route for the &quot;/users&quot; URL</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/users&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">read_users</span><span class="p">(</span>
-    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-    <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;offset&quot;</span><span class="p">),</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">1000</span>
+    <span class="p">),</span>  <span class="c1"># Query parameter for the maximum number of users to return</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;offset&quot;</span>
+    <span class="p">),</span>  <span class="c1"># Query parameter for the number of users to skip before starting to return users</span>
 <span class="p">):</span>
+    <span class="c1"># If no limit is provided, default to 500</span>
     <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">limit</span> <span class="o">=</span> <span class="mi">500</span>
 
+    <span class="c1"># If no offset is provided, default to 0</span>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
 
+    <span class="c1"># Create a SELECT query for the User table</span>
     <span class="n">query_count</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>
+    <span class="c1"># Execute the count query to get the total number of users</span>
     <span class="n">total_count</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">count_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query_count</span><span class="p">)</span>
+    <span class="c1"># Create a SELECT query for the User table</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>
+    <span class="c1"># Execute the SELECT query to get the users, with the provided limit and offset</span>
     <span class="n">users</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">fetch_query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span>
+    <span class="c1"># Return the total number of users, the number of users returned, and the users themselves</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;query_data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;total_count&quot;</span><span class="p">:</span> <span class="n">total_count</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">)},</span>
         <span class="s2">&quot;users&quot;</span><span class="p">:</span> <span class="n">users</span><span class="p">,</span>
     <span class="p">}</span>
 
 
+<span class="c1"># Define a route for the &quot;/users/&quot; URL that responds to POST requests</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/users/&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">UserResponse</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">UserBase</span><span class="p">):</span>
+    <span class="c1"># Create a new User instance from the provided data</span>
     <span class="n">db_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span>
         <span class="n">name_first</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">name_first</span><span class="p">,</span> <span class="n">name_last</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">name_last</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">email</span>
     <span class="p">)</span>
+    <span class="c1"># Insert the new user into the database</span>
     <span class="n">created_user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">execute_one</span><span class="p">(</span><span class="n">db_user</span><span class="p">)</span>
+    <span class="c1"># Return the created user</span>
     <span class="k">return</span> <span class="n">created_user</span>
 
 
+<span class="c1"># Define a route for the &quot;/users/bulk/&quot; URL that responds to POST requests</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
     <span class="s2">&quot;/users/bulk/&quot;</span><span class="p">,</span>
     <span class="n">response_model</span><span class="o">=</span><span class="n">List</span><span class="p">[</span><span class="n">UserResponse</span><span class="p">],</span>
     <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">create_users</span><span class="p">(</span><span class="n">user_list</span><span class="p">:</span> <span class="n">UserList</span><span class="p">):</span>
+    <span class="c1"># Create a list of new User instances from the provided data</span>
     <span class="n">db_users</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">User</span><span class="p">(</span><span class="n">name_first</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">name_first</span><span class="p">,</span> <span class="n">name_last</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">name_last</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">user_list</span><span class="o">.</span><span class="n">users</span>
     <span class="p">]</span>
+    <span class="c1"># Insert the new users into the database</span>
     <span class="n">created_users</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">execute_many</span><span class="p">(</span><span class="n">db_users</span><span class="p">)</span>
+    <span class="c1"># Log the created users</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;created_users: </span><span class="si">{</span><span class="n">created_users</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Return the created users</span>
     <span class="k">return</span> <span class="n">created_users</span>
 
 
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">string</span>
-
-
+<span class="c1"># Define a route for the &quot;/users/bulk/auto&quot; URL</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
     <span class="s2">&quot;/users/bulk/auto&quot;</span><span class="p">,</span>
     <span class="n">response_model</span><span class="o">=</span><span class="n">List</span><span class="p">[</span><span class="n">UserResponse</span><span class="p">],</span>
     <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">create_users_auto</span><span class="p">(</span><span class="n">qty</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
-    <span class="n">created_users</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Initialize an empty list to hold the new User instances</span>
+    <span class="n">db_users</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Generate the specified quantity of users</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">qty</span><span class="p">):</span>
-        <span class="c1"># Generate a random first name, last name</span>
+        <span class="c1"># Generate a random first name and last name</span>
         <span class="n">name_first</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
         <span class="n">name_last</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
 
@@ -750,19 +740,40 @@
         <span class="p">)</span>
         <span class="n">email</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;user</span><span class="si">{</span><span class="n">random_email_part</span><span class="si">}</span><span class="s2">@yahoo.com&quot;</span>
 
+        <span class="c1"># Create a new User instance and add it to the list</span>
         <span class="n">db_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">name_first</span><span class="o">=</span><span class="n">name_first</span><span class="p">,</span> <span class="n">name_last</span><span class="o">=</span><span class="n">name_last</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">)</span>
-        <span class="n">created_user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">execute_one</span><span class="p">(</span><span class="n">db_user</span><span class="p">)</span>
-        <span class="n">created_users</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">created_user</span><span class="p">)</span>
+        <span class="n">db_users</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">db_user</span><span class="p">)</span>
 
+    <span class="c1"># Insert the new users into the database</span>
+    <span class="n">created_users</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">execute_many</span><span class="p">(</span><span class="n">db_users</span><span class="p">)</span>
+
+    <span class="c1"># Log the number of created users</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;created_users: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">created_users</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Return the created users</span>
     <span class="k">return</span> <span class="n">created_users</span>
 
 
+<span class="c1"># Define a route for the &quot;/users/{user_id}&quot; URL</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/users/</span><span class="si">{user_id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">UserResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">read_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="c1"># Execute a SELECT query to get the user with the specified ID</span>
     <span class="n">users</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_ops</span><span class="o">.</span><span class="n">fetch_query</span><span class="p">(</span><span class="n">Select</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">_id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">))</span>
+    <span class="c1"># If no users were found, raise a 404 error</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">users</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user not found: </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;User not found&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Log the found user</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;users: </span><span class="si">{</span><span class="n">users</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Return the found user</span>
     <span class="k">return</span> <span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="c1"># Define a route for the &quot;/health/status&quot; URL</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health/status&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">health</span><span class="p">():</span>
+    <span class="c1"># Return the health status of the application</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;UP&quot;</span><span class="p">}</span>
 </code></pre></div>
 
 
