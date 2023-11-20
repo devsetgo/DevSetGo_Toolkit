@@ -260,10 +260,15 @@ async def read_user(user_id: str):
     return users[0]
 
 
-# from devsetgo_toolkit.health_endpoint import router as health
 from devsetgo_toolkit import system_health_endpoints
 
+# User configuration
+config = {
+    # "enable_status_endpoint": False, # on by default
+    # "enable_uptime_endpoint": False, # on by default
+    "enable_heapdump_endpoint": True,  # off by default
+}
+
 # Health router
-app.include_router(
-    system_health_endpoints.router, prefix="/api/health", tags=["system-health"]
-)
+health_router = system_health_endpoints(config)
+app.include_router(health_router, prefix="/api/health", tags=["system-health"])
