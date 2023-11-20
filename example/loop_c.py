@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import time
-from ctypes import c_char_p
-from ctypes import c_long
-from ctypes import cdll
-from statistics import mean
-from statistics import median
+from ctypes import c_char_p, c_long, cdll
+from statistics import mean, median
 
 from tqdm import tqdm
 
