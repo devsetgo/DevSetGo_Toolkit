@@ -71,7 +71,6 @@ def create_health_router(config: dict):
 
     # Check if the status endpoint is enabled in the configuration
     if config.get("enable_status_endpoint", True):
-
         # Define the status endpoint
         @router.get(
             "/status",
@@ -94,7 +93,6 @@ def create_health_router(config: dict):
 
     # Check if the uptime endpoint is enabled in the configuration
     if config.get("enable_uptime_endpoint", True):
-
         # Define the uptime endpoint
         @router.get("/uptime", response_class=ORJSONResponse, responses=status_response)
         async def get_uptime():
@@ -102,41 +100,31 @@ def create_health_router(config: dict):
             Calculate and return the uptime of the application.
             ...
             """
-            try:
-                # Calculate the total uptime in seconds
-                # This is done by subtracting the time when the application started from the current time
-                uptime_seconds = time.time() - app_start_time
+            # Calculate the total uptime in seconds
+            # This is done by subtracting the time when the application started from the current time
+            uptime_seconds = time.time() - app_start_time
 
-                # Convert the uptime from seconds to days, hours, minutes, and seconds
-                days, rem = divmod(uptime_seconds, 86400)
-                hours, rem = divmod(rem, 3600)
-                minutes, seconds = divmod(rem, 60)
+            # Convert the uptime from seconds to days, hours, minutes, and seconds
+            days, rem = divmod(uptime_seconds, 86400)
+            hours, rem = divmod(rem, 3600)
+            minutes, seconds = divmod(rem, 60)
 
-                # Log the uptime
-                logger.info(
-                    f"Uptime: {int(days)} days, {int(hours)} hours, {int(minutes)} minutes, {round(seconds, 2)} seconds"
-                )
+            # Log the uptime
+            logger.info(
+                f"Uptime: {int(days)} days, {int(hours)} hours, {int(minutes)} minutes, {round(seconds, 2)} seconds"
+            )
 
-                # Return a dictionary with the uptime
-                # The dictionary has keys for days, hours, minutes, and seconds
-                return {
-                    "uptime": {
-                        "Days": int(days),
-                        "Hours": int(hours),
-                        "Minutes": int(minutes),
-                        "Seconds": round(seconds, 2),
-                    }
+            # Return a dictionary with the uptime
+            # The dictionary has keys for days, hours, minutes, and seconds
+            return {
+                "uptime": {
+                    "Days": int(days),
+                    "Hours": int(hours),
+                    "Minutes": int(minutes),
+                    "Seconds": round(seconds, 2),
                 }
-            except Exception as ex:
-                # If any error occurs during the calculation of the uptime, log the error
-                logger.error(f"Error in get_uptime: {ex}")
+            }
 
-                # And raise an HTTPException with status code 500
-                raise HTTPException(
-                    status_code=500, detail=f"Error in get_uptime: {ex}"
-                )
-    
-    
     if config.get("enable_heapdump_endpoint", False):
 
         @router.get(
@@ -156,7 +144,6 @@ def create_health_router(config: dict):
             """
 
             try:
-                tracemalloc.start()  # Start tracing memory allocations
                 # Take a snapshot of the current memory usage
                 snapshot = tracemalloc.take_snapshot()
                 # Get the top 10 lines consuming memory
@@ -178,7 +165,6 @@ def create_health_router(config: dict):
 
                 logger.debug(f"Heap dump returned {heap_dump}")
                 # Return the heap dump
-                tracemalloc.stop()  # Stop tracing memory allocations
                 return {"heap_dump": heap_dump}
             except Exception as ex:
                 logger.error(f"Error in get_heapdump: {ex}")

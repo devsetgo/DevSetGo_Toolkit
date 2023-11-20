@@ -10,7 +10,7 @@ def test_generate_code_dict():
         200: {"description": ALL_HTTP_CODES[200]["description"]},
         404: {"description": ALL_HTTP_CODES[404]["description"]},
     }
-    result = generate_code_dict(codes)
+    result = generate_code_dict(codes, description_only=False)
     assert result == expected_result
 
     # Test with a code that does not exist in ALL_HTTP_CODES
@@ -22,5 +22,13 @@ def test_generate_code_dict():
     # Test with an empty list
     codes = []
     expected_result = {}
-    result = generate_code_dict(codes)
+    result = generate_code_dict(codes, description_only=False)
+    assert result == expected_result
+
+    codes = [200, 404]
+    expected_result = {
+        200: {"description": ALL_HTTP_CODES[200]["description"]},
+        404: {"description": ALL_HTTP_CODES[404]["description"]},
+    }
+    result = generate_code_dict(codes, description_only=True)
     assert result == expected_result
