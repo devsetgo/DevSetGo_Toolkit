@@ -24,8 +24,7 @@ import time
 from typing import List
 
 from sqlalchemy import func
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.future import select
 
 # Importing database connector module
