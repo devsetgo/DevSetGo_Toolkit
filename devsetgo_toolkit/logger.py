@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
-
 """
 This module sets up a logger named "Devsetgo Toolkit" with a level of DEBUG.
 It also sets up a StreamHandler that outputs to the console, with a level of DEBUG.
 The StreamHandler uses a Formatter to format the log messages.
+
+use:
+from devsetgo_toolkit.logger import logger
+
+logger.info("This is an info message")
+logger.debug("This is a debug message")
+logger.warning("This is a warning message")
+logger.error("This is an error message")
+logger.critical("This is a critical message")
+logger.exception("This is an exception message")
+
 """
 
 import logging
