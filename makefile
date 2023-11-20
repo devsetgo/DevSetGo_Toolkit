@@ -17,59 +17,53 @@ VENV_PATH = _venv
 REQUIREMENTS_PATH = requirements.txt
 # DEV_REQUIREMENTS_PATH = requirements/dev.txt
 
-.PHONY: install help black isort autoflake speedtest cleanup flake8 test
+.PHONY: autoflake black cleanup create-docs flake8 help install isort run-example run-example-dev speedtest test
 
-autoflake:
+autoflake: ## Remove unused imports and unused variables from Python code
 	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(SERVICE_PATH)
 	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(TESTS_PATH)
 	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(EXAMPLE_PATH)
 
-black:
+black: ## Reformat Python code to follow the Black code style
 	black $(SERVICE_PATH)
 	black $(TESTS_PATH)
 	black $(EXAMPLE_PATH)
 
-cleanup: isort black autoflake
+cleanup: isort black autoflake ## Run isort, black, and autoflake to clean up and format Python code
 
-
-help:
-	@echo "Available targets:"
-	@echo "  install       - Install required dependencies"
-	@echo "  prod      	   - Run the FastAPI application in production mode"
-	@echo "  dev           - Run the FastAPI application in development mode with hot-reloading"
-	@echo "  black         - Format code using black"
-	@echo "  isort         - Sort imports using isort"
-	@echo "  autoflake     - Remove unused imports and variables"
-
-isort:
-	isort $(SERVICE_PATH)
-	isort $(TESTS_PATH)
-	isort $(EXAMPLE_PATH)
-
-install:
-	$(PIP) install -r $(REQUIREMENTS_PATH)
-
-flake8:
-	flake8 --tee . > _flake8Report.txt
-
-speedtest:
-	if [ ! -f example/http_request.so ]; then gcc -shared -o example/http_request.so example/http_request.c -lcurl -fPIC; fi
-	python3 example/loop_c.py
-
-test:
-	pre-commit run -a
-	pytest
-	sed -i 's|<source>/workspaces/DevSetGo_Toolkit</source>|<source>/github/workspace/DevSetGo_Toolkit</source>|' /workspaces/DevSetGo_Toolkit/coverage.xml
-	coverage-badge -o coverage.svg -f
-
-run-example:
-	uvicorn example.main:app --port ${PORT} --workers ${WORKER} --log-level $(shell echo ${LOG_LEVEL} | tr A-Z a-z)
-
-run-example-dev:
-	uvicorn example.main:app --port ${PORT} --reload
-
-create-docs:
+create-docs: ## Build and deploy the project's documentation
 	mkdocs build
 	cp /workspaces/DevSetGo_Toolkit/README.md /workspaces/DevSetGo_Toolkit/docs/index.md
 	cp /workspaces/DevSetGo_Toolkit/CONTRIBUTING.md /workspaces/DevSetGo_Toolkit/docs/contribute.md
 	mkdocs gh-deploy
+
+flake8: ## Run flake8 to check Python code for PEP8 compliance
+	flake8 --tee . > _flake8Report.txt
+
+
+help:  ## Display this help message
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+install: ## Install the project's dependencie
+	$(PIP) install -r $(REQUIREMENTS_PATH)
+
+isort: ## Sort imports in Python code
+	isort $(SERVICE_PATH)
+	isort $(TESTS_PATH)
+	isort $(EXAMPLE_PATH)
+
+run-example: ## Run the example application
+	uvicorn example.main:app --port ${PORT} --workers ${WORKER} --log-level $(shell echo ${LOG_LEVEL} | tr A-Z a-z)
+
+run-example-dev: ## Run the example application with hot reloading
+	uvicorn example.main:app --port ${PORT} --reload
+
+speedtest: ## Run a speed test
+	if [ ! -f example/http_request.so ]; then gcc -shared -o example/http_request.so example/http_request.c -lcurl -fPIC; fi
+	python3 example/loop_c.py
+
+test: ## Run the project's tests
+	pre-commit run -a
+	pytest
+	sed -i 's|<source>/workspaces/DevSetGo_Toolkit</source>|<source>/github/workspace/DevSetGo_Toolkit</source>|' /workspaces/DevSetGo_Toolkit/coverage.xml
+	coverage-badge -o coverage.svg -f
