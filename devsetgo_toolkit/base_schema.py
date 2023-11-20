@@ -16,13 +16,11 @@ Import this module and extend the `SchemaBase` class to create new database mode
 """
 
 # Importing required modules from Python's standard library
-from datetime import datetime  # For handling date and time related tasks
+from datetime import datetime, timezone  # For handling date and time related tasks
 from uuid import uuid4  # For generating unique identifiers
 
 # Importing required modules from SQLAlchemy for defining database schema
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import String
+from sqlalchemy import Column, DateTime, String
 
 
 # Defining a base class for all our database schemas
@@ -32,10 +30,15 @@ class SchemaBase:
 
     # The date and time when a particular row was inserted into the table.
     # It defaults to the current UTC time when the instance is created.
-    date_created = Column(DateTime, index=True, default=datetime.utcnow)
+    date_created = Column(
+        DateTime, index=True, default=lambda: datetime.now(timezone.utc)
+    )
 
     # The date and time when a particular row was last updated.
     # It defaults to the current UTC time whenever the instance is updated.
     date_updated = Column(
-        DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime,
+        index=True,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
