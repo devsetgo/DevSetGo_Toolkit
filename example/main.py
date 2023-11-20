@@ -21,28 +21,19 @@ The application includes a /api/v1/tools endpoint and a /api/health endpoint, wh
 import logging
 import random
 import string
+import tracemalloc
+from contextlib import asynccontextmanager
 
 # Import necessary libraries and modules
 from datetime import datetime
 from typing import List
 
-from fastapi import FastAPI
-from fastapi import HTTPException
-from fastapi import Query
-from fastapi import status
-from fastapi.responses import ORJSONResponse
+from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
-from pydantic import ConfigDict
-from pydantic import EmailStr
-from pydantic import Field
-from sqlalchemy import Column
-from sqlalchemy import Select
-from sqlalchemy import String
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from sqlalchemy import Column, Select, String
 
-from devsetgo_toolkit import AsyncDatabase
-from devsetgo_toolkit import DatabaseOperations
-from devsetgo_toolkit import SchemaBase
+from devsetgo_toolkit import AsyncDatabase, DatabaseOperations, SchemaBase
 from devsetgo_toolkit.logger import logger
 
 logging.basicConfig(filename="example.log", encoding="utf-8", level=logging.WARNING)
@@ -111,6 +102,17 @@ class UserList(BaseModel):
     users: List[UserBase]  # List of users
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    tracemalloc.start()
+    # Create the tables in the database
+    await async_db.create_tables()
+
+    yield
+
+    tracemalloc.stop()
+
+
 # Create an instance of the FastAPI class
 app = FastAPI(
     title="FastAPI Example",  # The title of the API
@@ -122,22 +124,8 @@ app = FastAPI(
     debug=True,  # Enable debug mode
     middleware=[],  # A list of middleware to include in the application
     routes=[],  # A list of routes to include in the application
-    default_response_class=ORJSONResponse,  # The default response class to use
+    lifespan=lifespan,
 )
-
-
-# This function is run when the FastAPI application starts up
-@app.on_event("startup")
-async def startup_event():
-    # Create the tables in the database
-    await async_db.create_tables()
-
-
-# This function is run when the FastAPI application shuts down
-@app.on_event("shutdown")
-async def shutdown_event():
-    # Add any cleanup code here
-    pass
 
 
 # Define a route for the root ("/") URL
@@ -272,8 +260,10 @@ async def read_user(user_id: str):
     return users[0]
 
 
-# Define a route for the "/health/status" URL
-@app.get("/health/status")
-async def health():
-    # Return the health status of the application
-    return {"status": "UP"}
+# from devsetgo_toolkit.health_endpoint import router as health
+from devsetgo_toolkit import system_health_endpoints
+
+# Health router
+app.include_router(
+    system_health_endpoints.router, prefix="/api/health", tags=["system-health"]
+)
