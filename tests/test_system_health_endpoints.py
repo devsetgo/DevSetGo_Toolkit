@@ -2,11 +2,25 @@
 import tracemalloc
 from unittest.mock import patch
 
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from example.main import app  # replace with the name of your FastAPI app
 
+# Create a FastAPI app for testing
+app = FastAPI()
 client = TestClient(app)
+
+from devsetgo_toolkit import system_health_endpoints
+
+# User configuration
+config = {
+    # "enable_status_endpoint": False, # on by default
+    # "enable_uptime_endpoint": False, # on by default
+    "enable_heapdump_endpoint": True,  # off by default
+}
+# Health router
+health_router = system_health_endpoints(config)
+app.include_router(health_router, prefix="/api/health", tags=["system-health"])
 
 
 def test_health_status():
