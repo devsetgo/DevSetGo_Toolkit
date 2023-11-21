@@ -285,16 +285,12 @@ def generate_code_dict(codes, description_only=False):
 
     if description_only:
         return {
-            code: {"description": ALL_HTTP_CODES[code]["description"]}
+            code: ALL_HTTP_CODES[code]["description"]
             for code in codes
             if code in ALL_HTTP_CODES
         }
     else:
-        return {
-            code: {"description": ALL_HTTP_CODES[code]["description"]}
-            for code in codes
-            if code in ALL_HTTP_CODES
-        }
+        return {code: ALL_HTTP_CODES[code] for code in codes if code in ALL_HTTP_CODES}
 
 
 # Usage:

@@ -64,11 +64,6 @@ class AsyncDatabase:
             await conn.run_sync(self.Base.metadata.create_all)
         logging.info("Tables created successfully")
 
-    async def create_tables(self):
-        async with self.engine.begin() as conn:
-            await conn.run_sync(self.Base.metadata.create_all)
-        logging.info("Tables created successfully")
-
     @asynccontextmanager
     async def get_db_session(self):
         db_session = self.sessionmaker()
