@@ -18,10 +18,11 @@ logger.exception("This is an exception message")
 
 import logging
 
+#TODO: Need to use app that is import libray to set the logger
 # Get a logger named "Devsetgo Toolkit"
 logger = logging.getLogger("Devsetgo Toolkit")
 # Set the log level of the logger to DEBUG
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # Create a StreamHandler that outputs to the console
 ch = logging.StreamHandler()
