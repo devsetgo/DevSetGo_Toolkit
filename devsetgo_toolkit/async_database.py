@@ -59,28 +59,81 @@ class DBConfig:
     """
     A class used to manage the database configuration.
 
-    ...
-
     Attributes
     ----------
     config : Dict
-        a dictionary containing the database configuration
+        a dictionary containing the database configuration. Example:
+
+        config = {
+            "database_uri": "postgresql+asyncpg://user:password@localhost/dbname",
+            "echo": True,
+            "future": True,
+            "pool_pre_ping": True,
+            "pool_size": 5,
+            "max_overflow": 10,
+            "pool_recycle": 3600,
+            "pool_timeout": 30,
+        }
+
+        This config dictionary can be passed to the DBConfig class like this:
+
+        db_config = DBConfig(config)
+
+        This will create a new DBConfig instance with a SQLAlchemy engine configured according to the parameters in the config dictionary.
+
     engine : Engine
         the SQLAlchemy engine created with the database URI from the config
     metadata : MetaData
-        the SQLAlchemy MetaData instance
-
+    the SQLAlchemy MetaData instance
     Methods
     -------
     get_db_session():
         Returns a context manager that provides a new database session.
+
+    Create Engine Support Functions by Database Type
+    Confirmed by testing [SQLITE, PostrgeSQL]
+    To Be Tested [MySQL, Oracle, MSSQL]
+    -------
+    Option  	    SQLite  PostgreSQL	MySQL	Oracle	MSSQL
+    echo	        Yes	    Yes	        Yes     Yes     Yes
+    future	        Yes	    Yes         Yes     Yes     Yes
+    pool_pre_ping	Yes	    Yes         Yes     Yes     Yes
+    pool_size	    No	    Yes         Yes     Yes     Yes
+    max_overflow	No	    Yes         Yes     Yes     Yes
+    pool_recycle	Yes	    Yes	        Yes     Yes     Yes
+    pool_timeout	No	    Yes         Yes     Yes     Yes
+
     """
 
+    SUPPORTED_PARAMETERS = {
+        "sqlite": {"echo", "future", "pool_recycle"},
+        "postgresql": {
+            "echo",
+            "future",
+            "pool_pre_ping",
+            "pool_size",
+            "max_overflow",
+            "pool_recycle",
+            "pool_timeout",
+        },
+        # Add other engines here...
+    }
+
     def __init__(self, config: Dict):
-        # Initialize the DBConfig class with a dictionary containing the database configuration
         self.config = config
-        # Create a SQLAlchemy engine with the database URI from the config
-        self.engine = create_async_engine(self.config["database_uri"])
+        logger.debug(f"Database configuration: {self.config}")
+        engine_type = self.config["database_uri"].split(":")[0]
+        supported_parameters = self.SUPPORTED_PARAMETERS.get(engine_type, set())
+        engine_parameters = {
+            param: self.config.get(param)
+            for param in supported_parameters
+            if self.config.get(param) is not None
+        }
+        self.engine = create_async_engine(
+            self.config["database_uri"], **engine_parameters
+        )
+        self.metadata = MetaData()
+        logger.debug(f"Database engine created with URI: {self.config['database_uri']}")
         # Create a SQLAlchemy MetaData instance
         self.metadata = MetaData()
         logger.debug(f"Database engine created with URI: {self.config['database_uri']}")
