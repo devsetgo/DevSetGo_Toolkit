@@ -121,9 +121,15 @@ class DBConfig:
 
     def __init__(self, config: Dict):
         self.config = config
-        logger.debug(f"Database configuration: {self.config}")
-        engine_type = self.config["database_uri"].split(":")[0]
+        engine_type = self.config["database_uri"].split("+")[0]
         supported_parameters = self.SUPPORTED_PARAMETERS.get(engine_type, set())
+        unsupported_parameters = (
+            set(config.keys()) - supported_parameters - {"database_uri"}
+        )
+        if unsupported_parameters:
+            raise Exception(
+                f"Unsupported parameters for {engine_type}: {unsupported_parameters}"
+            )
         engine_parameters = {
             param: self.config.get(param)
             for param in supported_parameters
@@ -133,10 +139,6 @@ class DBConfig:
             self.config["database_uri"], **engine_parameters
         )
         self.metadata = MetaData()
-        logger.debug(f"Database engine created with URI: {self.config['database_uri']}")
-        # Create a SQLAlchemy MetaData instance
-        self.metadata = MetaData()
-        logger.debug(f"Database engine created with URI: {self.config['database_uri']}")
 
     @asynccontextmanager
     async def get_db_session(self):

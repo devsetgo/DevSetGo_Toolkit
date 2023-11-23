@@ -121,9 +121,15 @@ class DBConfig:
 
     def __init__(self, config: Dict):
         self.config = config
-        logger.debug(f"Database configuration: {self.config}")
-        engine_type = self.config["database_uri"].split(":")[0]
+        engine_type = self.config["database_uri"].split("+")[0]
         supported_parameters = self.SUPPORTED_PARAMETERS.get(engine_type, set())
+        unsupported_parameters = (
+            set(config.keys()) - supported_parameters - {"database_uri"}
+        )
+        if unsupported_parameters:
+            raise Exception(
+                f"Unsupported parameters for {engine_type}: {unsupported_parameters}"
+            )
         engine_parameters = {
             param: self.config.get(param)
             for param in supported_parameters
@@ -133,10 +139,6 @@ class DBConfig:
             self.config["database_uri"], **engine_parameters
         )
         self.metadata = MetaData()
-        logger.debug(f"Database engine created with URI: {self.config['database_uri']}")
-        # Create a SQLAlchemy MetaData instance
-        self.metadata = MetaData()
-        logger.debug(f"Database engine created with URI: {self.config['database_uri']}")
 
     @asynccontextmanager
     async def get_db_session(self):
@@ -450,7 +452,6 @@ class DatabaseOperations:
                 },
             )
 
-
 import secrets
 import string
 from datetime import datetime, timezone  # For handling date and time related tasks
@@ -470,15 +471,15 @@ app = FastAPI()
 
 # Create a DBConfig instance
 config = {
-    "database_uri": "postgresql+asyncpg://postgres:postgres@db/postgres",
-    # "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
-    "echo": True,
+    # "database_uri": "postgresql+asyncpg://postgres:postgres@db/postgres",
+    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
+    "echo": False,
     "future": True,
-    "pool_pre_ping": True,
-    "pool_size": 10,
-    "max_overflow": 10,
+    # "pool_pre_ping": True,
+    # "pool_size": 10,
+    # "max_overflow": 10,
     "pool_recycle": 3600,
-    "pool_timeout": 30,
+    # "pool_timeout": 30,
 }
 
 db_config = DBConfig(config)
@@ -496,7 +497,7 @@ async def startup_event():
 
     # Create a loop to generate user data
 
-    for i in tqdm(range(100), desc="executing one"):
+    for i in tqdm(range(20), desc="executing one"):
         value = secrets.token_hex(16)
         user = User(
             name_first=f"First{value}",
@@ -507,7 +508,7 @@ async def startup_event():
 
     users = []
     # Create a loop to generate user data
-    for i in tqdm(range(150000), desc="executing many"):
+    for i in tqdm(range(3000), desc="executing many"):
         value_one = secrets.token_hex(4)
         value_two = secrets.token_hex(8)
         user = User(
