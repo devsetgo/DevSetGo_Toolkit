@@ -113,6 +113,7 @@ class DatabaseOperationException(Exception):
     __init__(status_code, detail):
         Initializes the DatabaseOperationException with a status code and detail.
     """
+
     # Constructor method
     def __init__(self, status_code, detail):
         self.status_code = status_code  # Status Code attribute
@@ -308,9 +309,11 @@ async def startup_event():
     # Use db_ops to add the users to the database
     await db_ops.execute_many(users)
 
+
 from devsetgo_toolkit.base_schema import SchemaBase
 
-class User(SchemaBase,async_db.Base):
+
+class User(SchemaBase, async_db.Base):
     __tablename__ = "users"  # Name of the table in the database
     # Each instance in the table will have a unique id which is a string representation of a UUID
     # _id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))

@@ -30,10 +30,7 @@ class SchemaBase:
 
     # The date and time when a particular row was inserted into the table.
     # It defaults to the current UTC time when the instance is created.
-    date_created = Column(
-        DateTime, index=True, default=datetime.utcnow()
-        # default=lambda: datetime.now(timezone.utc)
-    )
+    date_created = Column(DateTime, index=True, default=datetime.utcnow())
 
     # The date and time when a particular row was last updated.
     # It defaults to the current UTC time whenever the instance is updated.

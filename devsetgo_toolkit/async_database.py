@@ -113,6 +113,7 @@ class DatabaseOperationException(Exception):
     __init__(status_code, detail):
         Initializes the DatabaseOperationException with a status code and detail.
     """
+
     # Constructor method
     def __init__(self, status_code, detail):
         self.status_code = status_code  # Status Code attribute
@@ -244,4 +245,3 @@ class DatabaseOperations:
                     "details": "see logs for further information",
                 },
             )
-
