@@ -1,11 +1,13 @@
-from typing import Dict, List
 import time
+from contextlib import asynccontextmanager
+from typing import Dict, List
+
 from sqlalchemy import MetaData, func
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 from sqlalchemy.orm import declarative_base, sessionmaker
-from contextlib import asynccontextmanager
+
 from devsetgo_toolkit.logger import logger
 
 Base = declarative_base()
@@ -151,12 +153,33 @@ class DatabaseOperations:
 
     async def count_query(self, query):
         logger.debug("Starting count_query operation")
-        async with self.async_db.get_db_session() as session:
-            logger.debug(f"Count Query: {query}")
-            result = await session.execute(select(func.count()).select_from(query))
-            count = result.scalar()
-            logger.info(f"Count Result: {count}")
-            return count
+        try:
+            async with self.async_db.get_db_session() as session:
+                logger.debug(f"Count Query: {query}")
+                result = await session.execute(select(func.count()).select_from(query))
+                count = result.scalar()
+                logger.info(f"Count Result: {count}")
+                return count
+        except SQLAlchemyError as ex:
+            logger.error(f"SQLAlchemyError on count query: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
+        except Exception as ex:
+            logger.error(f"Exception Failed to perform count query: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
 
     async def fetch_query(self, query, limit=500, offset=0):
         logger.debug("Starting fetch_query operation")
@@ -169,16 +192,37 @@ class DatabaseOperations:
 
     async def fetch_queries(self, queries: dict, limit=500, offset=0):
         logger.debug("Starting fetch_queries operation")
-        results = {}
-        async with self.async_db.get_db_session() as session:
-            logger.debug(f"Fetch Queries: {queries}")
-            for query_name, query in queries.items():
-                logger.debug(f"Fetch Query: {query}")
-                result = await session.execute(query.limit(limit).offset(offset))
-                data = result.scalars().all()
-                logger.info(f"Fetch Result: {data}")
-                results[query_name] = data
-        return results
+        try:
+            results = {}
+            async with self.async_db.get_db_session() as session:
+                logger.debug(f"Fetch Queries: {queries}")
+                for query_name, query in queries.items():
+                    logger.debug(f"Fetch Query: {query}")
+                    result = await session.execute(query.limit(limit).offset(offset))
+                    data = result.scalars().all()
+                    logger.info(f"Fetch Result: {data}")
+                    results[query_name] = data
+            return results
+        except SQLAlchemyError as ex:
+            logger.error(f"SQLAlchemyError on fetch queries: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
+        except Exception as ex:
+            logger.error(f"Exception Failed to perform fetch queries: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
 
     async def execute_one(self, record):
         logger.debug("Starting execute_one operation")
@@ -235,9 +279,9 @@ class DatabaseOperations:
                     f"Record operations were successful. {num_records} records were created in {t1:.4f} seconds."
                 )
                 return records
-        except Exception as ex:
+        except IntegrityError as ex:
+            logger.error(f"IntegrityError on records: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            logger.error(f"Failed to perform operations on records: {ex}")
             raise DatabaseOperationException(
                 status_code=400,
                 detail={
@@ -245,18 +289,39 @@ class DatabaseOperations:
                     "details": "see logs for further information",
                 },
             )
+        except SQLAlchemyError as ex:
+            logger.error(f"SQLAlchemyError on records: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
+        except Exception as ex:
+            logger.error(f"Exception Failed to perform operations on records: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
 
 
-from fastapi import FastAPI, status, Query
-from sqlalchemy import Column, DateTime, String, Select
+import secrets
+import string
 from datetime import datetime, timezone  # For handling date and time related tasks
+from random import choices, randint
 from uuid import uuid4  # For generating unique identifiers
+
+from fastapi import FastAPI, Query, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-import secrets
-from random import randint, choices
+from sqlalchemy import Column, DateTime, Select, String
 from tqdm import tqdm
-import string
 
 # from example.async_database import AsyncDatabase, DatabaseOperations, DBConfig
 
@@ -266,8 +331,8 @@ app = FastAPI()
 # Create a DBConfig instance
 db_config = DBConfig(
     {
-        # "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared"
-        "database_uri": "postgresql+asyncpg://postgres:postgres@db/postgres"
+        "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared"
+        # "database_uri": "postgresql+asyncpg://postgres:postgres@db/postgres"
     }
 )
 
@@ -296,7 +361,7 @@ async def startup_event():
 
     users = []
     # Create a loop to generate user data
-    for i in tqdm(range(randint(1000000, 10000000)), desc="executing many"):
+    for i in tqdm(range(randint(1000, 1500)), desc="executing many"):
         value_one = secrets.token_hex(4)
         value_two = secrets.token_hex(8)
         user = User(

@@ -5,7 +5,6 @@ from unittest.mock import patch
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-
 # Create a FastAPI app for testing
 app = FastAPI()
 client = TestClient(app)
