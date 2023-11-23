@@ -38,7 +38,7 @@ if __name__ == "__main__":
     req_list = []
     t0 = time.time()
     response_list = []
-    for l in tqdm(range(loops), ascii=True):
+    for _ in tqdm(range(loops), ascii=True):
         start_time = time.time()
         responses = asyncio.run(run(n))
         end_time = time.time()
