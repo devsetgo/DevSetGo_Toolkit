@@ -9,6 +9,7 @@ bump2version==1.0.1 #   Vulnerabilities: None
 Click==8.1.7 #   Vulnerabilities: None
 coverage-badge==1.1.0 #   Vulnerabilities: None
 devsetgo-lib==0.10.1 #   Vulnerabilities: None
+docformatter
 fastapi[all]==0.104.1 #   Vulnerabilities: None
 flake8==6.1.0 #   Vulnerabilities: None
 freezegun==1.2.2 #   Vulnerabilities: None

@@ -1,58 +1,557 @@
 # -*- coding: utf-8 -*-
-"""
-This module defines the FastAPI application and its endpoints.
 
-The application uses SQLAlchemy for database operations and Pydantic for request and response models. It includes endpoints for creating, reading, and counting users. It also includes a health check endpoint and a tools endpoint.
+# """
+# async_database.py
 
-The User model is defined with first name, last name, and email fields. The UserBase Pydantic model is used for request validation when creating a new user, and the UserResponse Pydantic model is used for the response.
+# This module contains several classes that handle database operations in an asynchronous manner using SQLAlchemy and asyncio.
 
-The application uses the AsyncDatabase and DatabaseOperations classes from the devsetgo_toolkit library for asynchronous database operations.
+# Classes:
+#     - DBConfig: Manages the database configuration.
+#     - AsyncDatabase: Manages the asynchronous database operations.
+#     - DatabaseOperationException: A custom exception class for handling database operation errors.
+#     - DatabaseOperations: Manages the database operations.
 
-The application is configured to log to a file with a custom format and rotation policy.
+# The DBConfig class initializes the database configuration and creates a SQLAlchemy engine and a MetaData instance.
 
-The application includes a startup event that creates the database tables if they don't exist.
+# The AsyncDatabase class uses an instance of DBConfig to perform asynchronous database operations. It provides methods to get a database session and to create tables in the database.
 
-The application's root endpoint redirects to the /docs endpoint, which provides an interactive API documentation.
+# The DatabaseOperationException class is a custom exception class that is used to handle errors that occur during database operations. It includes the HTTP status code and a detailed message about the error.
 
-The application includes a /users/count endpoint that returns the total number of users, a /users endpoint that returns a list of users with pagination, a /users/ endpoint that creates a new user, a /users/bulk/ endpoint that creates multiple users, a /users/bulk/auto endpoint that automatically generates and creates multiple users, and a /users/{user_id} endpoint that returns the details of a specific user.
+# The DatabaseOperations class uses an instance of AsyncDatabase to perform various database operations such as executing count queries, fetch queries, and adding records to the database. It handles errors by raising a DatabaseOperationException with the appropriate status code and detail message.
 
-The application includes a /api/v1/tools endpoint and a /api/health endpoint, which are defined in separate routers.
-"""
-import logging
-import random
+# This module uses the logger from the devsetgo_toolkit for logging.
+# """
+
+# import time  # Importing time module to work with times
+# from contextlib import (
+#     asynccontextmanager,
+# )  # Importing asynccontextmanager from contextlib for creating context managers
+# from typing import Dict, List  # Importing Dict and List from typing for type hinting
+
+# from sqlalchemy import (
+#     MetaData,
+#     func,
+# )  # Importing MetaData and func from sqlalchemy for database operations
+# from sqlalchemy.exc import (
+#     IntegrityError,
+#     SQLAlchemyError,
+# )  # Importing specific exceptions from sqlalchemy for error handling
+# from sqlalchemy.ext.asyncio import (
+#     AsyncSession,
+#     create_async_engine,
+# )  # Importing AsyncSession and create_async_engine from sqlalchemy for asynchronous database operations
+# from sqlalchemy.future import (
+#     select,
+# )  # Importing select from sqlalchemy for making select queries
+# from sqlalchemy.orm import (
+#     declarative_base,
+#     sessionmaker,
+# )  # Importing declarative_base and sessionmaker from sqlalchemy for ORM operations
+
+# from devsetgo_toolkit.logger import (
+#     logger,
+# )  # Importing logger from devsetgo_toolkit for logging
+
+# Base = declarative_base()  # Creating a base class for declarative database models
+
+
+# class DBConfig:
+#     """
+#     A class used to manage the database configuration.
+
+#     Attributes
+#     ----------
+#     config : Dict
+#         a dictionary containing the database configuration. Example:
+
+#         config = {
+#             "database_uri": "postgresql+asyncpg://user:password@localhost/dbname",
+#             "echo": True,
+#             "future": True,
+#             "pool_pre_ping": True,
+#             "pool_size": 5,
+#             "max_overflow": 10,
+#             "pool_recycle": 3600,
+#             "pool_timeout": 30,
+#         }
+
+#         This config dictionary can be passed to the DBConfig class like this:
+
+#         db_config = DBConfig(config)
+
+#         This will create a new DBConfig instance with a SQLAlchemy engine configured according to the parameters in the config dictionary.
+
+#     engine : Engine
+#         the SQLAlchemy engine created with the database URI from the config
+#     metadata : MetaData
+#     the SQLAlchemy MetaData instance
+#     Methods
+#     -------
+#     get_db_session():
+#         Returns a context manager that provides a new database session.
+
+#     Create Engine Support Functions by Database Type
+#     Confirmed by testing [SQLITE, PostrgeSQL]
+#     To Be Tested [MySQL, Oracle, MSSQL]
+#     -------
+#     Option  	    SQLite  PostgreSQL	MySQL	Oracle	MSSQL
+#     echo	        Yes	    Yes	        Yes     Yes     Yes
+#     future	        Yes	    Yes         Yes     Yes     Yes
+#     pool_pre_ping	Yes	    Yes         Yes     Yes     Yes
+#     pool_size	    No	    Yes         Yes     Yes     Yes
+#     max_overflow	No	    Yes         Yes     Yes     Yes
+#     pool_recycle	Yes	    Yes	        Yes     Yes     Yes
+#     pool_timeout	No	    Yes         Yes     Yes     Yes
+
+#     """
+
+#     SUPPORTED_PARAMETERS = {
+#         "sqlite": {"echo", "future", "pool_recycle"},
+#         "postgresql": {
+#             "echo",
+#             "future",
+#             "pool_pre_ping",
+#             "pool_size",
+#             "max_overflow",
+#             "pool_recycle",
+#             "pool_timeout",
+#         },
+#         # Add other engines here...
+#     }
+
+#     def __init__(self, config: Dict):
+#         self.config = config
+#         engine_type = self.config["database_uri"].split("+")[0]
+#         supported_parameters = self.SUPPORTED_PARAMETERS.get(engine_type, set())
+#         unsupported_parameters = (
+#             set(config.keys()) - supported_parameters - {"database_uri"}
+#         )
+#         if unsupported_parameters:
+#             raise Exception(
+#                 f"Unsupported parameters for {engine_type}: {unsupported_parameters}"
+#             )
+#         engine_parameters = {
+#             param: self.config.get(param)
+#             for param in supported_parameters
+#             if self.config.get(param) is not None
+#         }
+#         self.engine = create_async_engine(
+#             self.config["database_uri"], **engine_parameters
+#         )
+#         self.metadata = MetaData()
+
+#     @asynccontextmanager
+#     async def get_db_session(self):
+#         # This method returns a context manager that provides a new database session
+#         logger.debug("Creating new database session")
+#         try:
+#             # Create a new database session
+#             async with sessionmaker(
+#                 self.engine, expire_on_commit=False, class_=AsyncSession
+#             )() as session:
+#                 # Yield the session to the context manager
+#                 yield session
+#         except SQLAlchemyError as e:  # pragma: no cover
+#             # Log the error and raise it
+#             logger.error(f"Database error occurred: {str(e)}")  # pragma: no cover
+#             raise  # pragma: no cover
+#         finally:  # pragma: no cover
+#             # Log the end of the database session
+#             logger.debug("Database session ended")  # pragma: no cover
+
+
+# class AsyncDatabase:
+#     """
+#     A class used to manage the asynchronous database operations.
+
+#     ...
+
+#     Attributes
+#     ----------
+#     db_config : DBConfig
+#         an instance of DBConfig class containing the database configuration
+#     Base : Base
+#         the declarative base model for SQLAlchemy
+
+#     Methods
+#     -------
+#     get_db_session():
+#         Returns a context manager that provides a new database session.
+#     create_tables():
+#         Asynchronously creates all tables in the database.
+#     """
+
+#     def __init__(self, db_config: DBConfig):
+#         # Initialize the AsyncDatabase class with an instance of DBConfig
+#         self.db_config = db_config
+#         self.Base = Base
+#         # Bind the engine to the metadata of the base class,
+#         # so that declaratives can be accessed through a DBSession instance
+#         self.Base.metadata.bind = self.db_config.engine
+#         logger.debug("AsyncDatabase initialized")
+
+#     def get_db_session(self):
+#         # This method returns a context manager that provides a new database session
+#         logger.debug("Getting database session")
+#         return self.db_config.get_db_session()
+
+#     async def create_tables(self):
+#         # This method asynchronously creates all tables in the database
+#         logger.debug("Creating tables")
+#         try:
+#             # Begin a new transaction
+#             async with self.db_config.engine.begin() as conn:
+#                 # Run a function in a synchronous manner
+#                 await conn.run_sync(Base.metadata.create_all)
+#             logger.info("Tables created successfully")
+#         except Exception as e:  # pragma: no cover
+#             # Log the error and raise it
+#             logger.error(f"Error creating tables: {e}")  # pragma: no cover
+#             raise  # pragma: no cover
+
+
+# class DatabaseOperationException(Exception):
+#     """
+#     A custom exception class for handling database operation errors.
+
+#     ...
+
+#     Attributes
+#     ----------
+#     status_code : int
+#         an integer representing the HTTP status code of the error
+#     detail : str
+#         a string providing detailed information about the error
+
+#     Methods
+#     -------
+#     __init__(status_code, detail):
+#         Initializes the DatabaseOperationException with a status code and detail.
+#     """
+
+#     def __init__(self, status_code, detail):
+#         """
+#         Constructor method for DatabaseOperationException class.
+
+#         Parameters:
+#         status_code (int): The HTTP status code of the error
+#         detail (str): Detailed information about the error
+#         """
+#         self.status_code = (
+#             status_code  # Assign the status code to the instance variable
+#         )
+#         self.detail = detail  # Assign the detail to the instance variable
+
+
+# class DatabaseOperations:
+#     """
+#     A class used to manage the database operations.
+
+#     ...
+
+#     Attributes
+#     ----------
+#     async_db : AsyncDatabase
+#         an instance of AsyncDatabase class for performing asynchronous database operations
+
+#     Methods
+#     -------
+#     count_query(query):
+#         Executes a count query and returns the result.
+#     fetch_query(query, limit=500, offset=0):
+#         Executes a fetch query and returns the result.
+#     fetch_queries(queries: dict, limit=500, offset=0):
+#         Executes multiple fetch queries and returns the results.
+#     execute_one(record):
+#         Adds a single record to the database.
+#     execute_many(records: List):
+#         Adds multiple records to the database.
+#     """
+
+#     def __init__(self, async_db: AsyncDatabase):
+#         # Initialize the DatabaseOperations class with an instance of AsyncDatabase
+#         self.async_db = async_db
+#         logger.info("DatabaseOperations initialized")
+
+#     async def count_query(self, query):
+#         # This method executes a count query and returns the result
+#         logger.debug("Starting count_query operation")
+#         try:
+#             async with self.async_db.get_db_session() as session:
+#                 # Execute the count query
+#                 logger.debug(f"Count Query: {query}")
+#                 result = await session.execute(select(func.count()).select_from(query))
+#                 count = result.scalar()
+#                 logger.info(f"Count Result: {count}")
+#                 return count
+#         except SQLAlchemyError as ex:
+#             # Handle SQLAlchemyError
+#             logger.error(f"SQLAlchemyError on count query: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+#         except Exception as ex:
+#             # Handle general exceptions
+#             logger.error(f"Exception Failed to perform count query: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+
+#     async def fetch_query(self, query, limit=500, offset=0):
+#         # This method executes a fetch query and returns the result
+#         logger.debug("Starting fetch_query operation")
+#         try:
+#             async with self.async_db.get_db_session() as session:
+#                 # Execute the fetch query
+#                 logger.debug(f"Fetch Query: {query}")
+#                 result = await session.execute(query.limit(limit).offset(offset))
+#                 data = result.scalars().all()
+#                 logger.info(f"Fetch Result: {data}")
+#                 return data
+#         except SQLAlchemyError as ex:
+#             # Handle SQLAlchemyError
+#             logger.error(f"SQLAlchemyError on fetch query: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+#         except Exception as ex:
+#             # Handle general exceptions
+#             logger.error(f"Exception Failed to perform fetch query: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+
+#     async def fetch_queries(self, queries: dict, limit=500, offset=0):
+#         # This method executes multiple fetch queries and returns the results
+#         logger.debug("Starting fetch_queries operation")
+#         try:
+#             results = {}
+#             async with self.async_db.get_db_session() as session:
+#                 # Execute each fetch query
+#                 logger.debug(f"Fetch Queries: {queries}")
+#                 for query_name, query in queries.items():
+#                     logger.debug(f"Fetch Query: {query}")
+#                     result = await session.execute(query.limit(limit).offset(offset))
+#                     data = result.scalars().all()
+#                     logger.info(f"Fetch Result: {data}")
+#                     results[query_name] = data
+#             return results
+#         except SQLAlchemyError as ex:
+#             # Handle SQLAlchemyError
+#             logger.error(f"SQLAlchemyError on fetch queries: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+#         except Exception as ex:
+#             # Handle general exceptions
+#             logger.error(f"Exception Failed to perform fetch queries: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+
+#     async def execute_one(self, record):
+#         # This method adds a single record to the database
+#         logger.debug("Starting execute_one operation")
+#         try:
+#             async with self.async_db.get_db_session() as session:
+#                 # Add the record to the session and commit
+#                 logger.debug(f"Record: {record}")
+#                 session.add(record)
+#                 await session.commit()
+#             logger.info(f"Record operation was successful: {record}.")
+#             return record
+#         except IntegrityError as ex:
+#             # Handle IntegrityError
+#             logger.error(f"IntegrityError on record: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=400,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+#         except SQLAlchemyError as ex:
+#             # Handle SQLAlchemyError
+#             logger.error(f"SQLAlchemyError on record: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+#         except Exception as ex:
+#             # Handle general exceptions
+#             logger.error(f"Exception Failed to perform operation on record: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+
+#     async def execute_many(self, records: List):
+#         # This method adds multiple records to the database
+#         logger.debug("Starting execute_many operation")
+#         try:
+#             t0 = time.time()
+#             async with self.async_db.get_db_session() as session:
+#                 # Add all the records to the session and commit
+#                 logger.debug(f"Adding {len(records)} records to session")
+#                 session.add_all(records)
+#                 await session.commit()
+
+#                 num_records = len(records)
+#                 t1 = time.time() - t0
+#                 logger.info(
+#                     f"Record operations were successful. {num_records} records were created in {t1:.4f} seconds."
+#                 )
+#                 return records
+#         except IntegrityError as ex:
+#             # Handle IntegrityError
+#             logger.error(f"IntegrityError on records: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=400,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+#         except SQLAlchemyError as ex:
+#             # Handle SQLAlchemyError
+#             logger.error(f"SQLAlchemyError on records: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+#         except Exception as ex:
+#             # Handle general exceptions
+#             logger.error(f"Exception Failed to perform operations on records: {ex}")
+#             error_only = str(ex).split("[SQL:")[0]
+#             raise DatabaseOperationException(
+#                 status_code=500,
+#                 detail={
+#                     "error": error_only,
+#                     "details": "see logs for further information",
+#                 },
+#             )
+
+
+import secrets
 import string
-import tracemalloc
-from contextlib import asynccontextmanager
-
-# Import necessary libraries and modules
-from datetime import datetime
+from datetime import datetime, timezone  # For handling date and time related tasks
+from random import choices
 from typing import List
+from uuid import uuid4  # For generating unique identifiers
 
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import FastAPI, Query, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from sqlalchemy import Column, Select, String
+from tqdm import tqdm
 
-from devsetgo_toolkit import AsyncDatabase, DatabaseOperations, SchemaBase
-from devsetgo_toolkit.logger import logger
+from devsetgo_toolkit import AsyncDatabase, DatabaseOperations, DBConfig
 
-logging.basicConfig(filename="example.log", encoding="utf-8", level=logging.WARNING)
+# from example.async_database import AsyncDatabase, DatabaseOperations, DBConfig
 
-# Define a dictionary with the settings for the database connection
-settings_dict = {
-    # "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",  # SQLite connection string (commented out)
-    "database_uri": "postgresql+asyncpg://postgres:postgres@db/postgres",  # PostgreSQL connection string
+app = FastAPI()
+
+
+# Create a DBConfig instance
+config = {
+    # "database_uri": "postgresql+asyncpg://postgres:postgres@db/postgres",
+    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
+    "echo": False,
+    "future": True,
+    # "pool_pre_ping": True,
+    # "pool_size": 10,
+    # "max_overflow": 10,
+    "pool_recycle": 3600,
+    # "pool_timeout": 30,
 }
 
-# Create an instance of AsyncDatabase with the settings from settings_dict
-async_db = AsyncDatabase(settings_dict=settings_dict)
+db_config = DBConfig(config)
+# Create an AsyncDatabase instance
+async_db = AsyncDatabase(db_config)
 
-# Create an instance of DatabaseOperations with the AsyncDatabase instance
+# Create a DatabaseOperations instance
 db_ops = DatabaseOperations(async_db)
 
 
-# User class inherits from SchemaBase and async_db.Base
-# This class represents the User table in the database
+@app.on_event("startup")
+async def startup_event():
+    await async_db.create_tables()
+    # Create a list to hold the user data
+
+    # Create a loop to generate user data
+
+    for i in tqdm(range(20), desc="executing one"):
+        value = secrets.token_hex(16)
+        user = User(
+            name_first=f"First{value}",
+            name_last=f"Last{value}",
+            email=f"user{value}@example.com",
+        )
+        await db_ops.execute_one(user)
+
+    users = []
+    # Create a loop to generate user data
+    for i in tqdm(range(2000), desc="executing many"):
+        value_one = secrets.token_hex(4)
+        value_two = secrets.token_hex(8)
+        user = User(
+            name_first=f"First{value_one}{i}{value_two}",
+            name_last=f"Last{value_one}{i}{value_two}",
+            email=f"user{value_one}{i}{value_two}@example.com",
+        )
+        users.append(user)
+
+    # Use db_ops to add the users to the database
+    await db_ops.execute_many(users)
+
+
+from devsetgo_toolkit.base_schema import SchemaBase
+
+
 class User(SchemaBase, async_db.Base):
     __tablename__ = "users"  # Name of the table in the database
 
@@ -64,8 +563,20 @@ class User(SchemaBase, async_db.Base):
     )  # Email of the user, must be unique
 
 
-# UserBase class inherits from BaseModel
-# This class is used for request validation when creating a new user
+# Define a route for the root ("/") URL
+@app.get("/")
+async def root():
+    # When this route is accessed, redirect the client to "/docs" with a 307 status code
+    return RedirectResponse("/docs", status_code=307)
+
+
+@app.get("/user/count")
+async def user_count():
+    # Use db_ops to perform database operations
+    count = await db_ops.count_query(Select(User))
+    return {"count": count}
+
+
 class UserBase(BaseModel):
     name_first: str = Field(  # First name of the user
         ...,  # This means that the field is required
@@ -84,8 +595,6 @@ class UserBase(BaseModel):
     )  # Configuration for the Pydantic model
 
 
-# UserResponse class inherits from UserBase
-# This class is used for the response when retrieving a user
 class UserResponse(UserBase):
     _id: str  # ID of the user
     date_created: datetime  # Date when the user was created
@@ -94,120 +603,6 @@ class UserResponse(UserBase):
     model_config = ConfigDict(
         from_attributes=True
     )  # Configuration for the Pydantic model
-
-
-# UserList class inherits from BaseModel
-# This class is used for the response when retrieving a list of users
-class UserList(BaseModel):
-    users: List[UserBase]  # List of users
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    tracemalloc.start()
-    # Create the tables in the database
-    await async_db.create_tables()
-
-    yield
-
-    tracemalloc.stop()
-
-
-# Create an instance of the FastAPI class
-app = FastAPI(
-    title="FastAPI Example",  # The title of the API
-    description="This is an example of a FastAPI application.",  # A brief description of the API
-    version="0.1.0",  # The version of the API
-    docs_url="/docs",  # The URL where the API documentation will be served
-    redoc_url="/redoc",  # The URL where the ReDoc documentation will be served
-    openapi_url="/openapi.json",  # The URL where the OpenAPI schema will be served
-    debug=True,  # Enable debug mode
-    middleware=[],  # A list of middleware to include in the application
-    routes=[],  # A list of routes to include in the application
-    lifespan=lifespan,
-)
-
-
-# Define a route for the root ("/") URL
-@app.get("/")
-async def root():
-    # When this route is accessed, redirect the client to "/docs" with a 307 status code
-    return RedirectResponse("/docs", status_code=307)
-
-
-# Define a route for the "/users/count" URL
-@app.get("/users/count")
-async def count_users():
-    # Execute a count query on the User table
-    count = await db_ops.count_query(Select(User))
-    # Return the count as a JSON object
-    return {"count": count}
-
-
-# Define a route for the "/users" URL
-@app.get("/users")
-async def read_users(
-    limit: int = Query(
-        None, alias="limit", ge=1, le=1000
-    ),  # Query parameter for the maximum number of users to return
-    offset: int = Query(
-        None, alias="offset"
-    ),  # Query parameter for the number of users to skip before starting to return users
-):
-    # If no limit is provided, default to 500
-    if limit is None:
-        limit = 500
-
-    # If no offset is provided, default to 0
-    if offset is None:
-        offset = 0
-
-    # Create a SELECT query for the User table
-    query_count = Select(User)
-    # Execute the count query to get the total number of users
-    total_count = await db_ops.count_query(query=query_count)
-    # Create a SELECT query for the User table
-    query = Select(User)
-    # Execute the SELECT query to get the users, with the provided limit and offset
-    users = await db_ops.fetch_query(query=query, limit=limit, offset=offset)
-    # Return the total number of users, the number of users returned, and the users themselves
-    return {
-        "query_data": {"total_count": total_count, "count": len(users)},
-        "users": users,
-    }
-
-
-# Define a route for the "/users/" URL that responds to POST requests
-@app.post("/users/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user: UserBase):
-    # Create a new User instance from the provided data
-    db_user = User(
-        name_first=user.name_first, name_last=user.name_last, email=user.email
-    )
-    # Insert the new user into the database
-    created_user = await db_ops.execute_one(db_user)
-    # Return the created user
-    return created_user
-
-
-# Define a route for the "/users/bulk/" URL that responds to POST requests
-@app.post(
-    "/users/bulk/",
-    response_model=List[UserResponse],
-    status_code=status.HTTP_201_CREATED,
-)
-async def create_users(user_list: UserList):
-    # Create a list of new User instances from the provided data
-    db_users = [
-        User(name_first=user.name_first, name_last=user.name_last, email=user.email)
-        for user in user_list.users
-    ]
-    # Insert the new users into the database
-    created_users = await db_ops.execute_many(db_users)
-    # Log the created users
-    logger.info(f"created_users: {created_users}")
-    # Return the created users
-    return created_users
 
 
 # Define a route for the "/users/bulk/auto" URL
@@ -222,12 +617,12 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
     # Generate the specified quantity of users
     for i in range(qty):
         # Generate a random first name and last name
-        name_first = "".join(random.choices(string.ascii_lowercase, k=5))
-        name_last = "".join(random.choices(string.ascii_lowercase, k=5))
+        name_first = "".join(choices(string.ascii_lowercase, k=5))
+        name_last = "".join(choices(string.ascii_lowercase, k=5))
 
         # Generate a random email
         random_email_part = "".join(
-            random.choices(string.ascii_lowercase + string.digits, k=10)
+            choices(string.ascii_lowercase + string.digits, k=10)
         )
         email = f"user{random_email_part}@yahoo.com"
 
@@ -240,36 +635,6 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
 
     # Log the number of created users
     logger.info(f"created_users: {len(created_users)}")
+
     # Return the created users
     return created_users
-
-
-# Define a route for the "/users/{user_id}" URL
-@app.get("/users/{user_id}", response_model=UserResponse)
-async def read_user(user_id: str):
-    # Execute a SELECT query to get the user with the specified ID
-    users = await db_ops.fetch_query(Select(User).where(User._id == user_id))
-    # If no users were found, raise a 404 error
-    if not users:
-        logger.info(f"user not found: {user_id}")
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # Log the found user
-    logger.info(f"users: {users}")
-    # Return the found user
-    return users[0]
-
-
-from devsetgo_toolkit import system_health_endpoints
-
-# User configuration
-config = {
-    # "enable_status_endpoint": False, # on by default
-    # "enable_uptime_endpoint": False, # on by default
-    "enable_heapdump_endpoint": True,  # off by default
-}
-
-
-# Health router
-health_router = system_health_endpoints(config)
-app.include_router(health_router, prefix="/api/health", tags=["system-health"])

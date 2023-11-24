@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import pytest
-from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy import MetaData
+from sqlalchemy.ext.asyncio import AsyncEngine
+
 from devsetgo_toolkit.async_database import DBConfig
 
 

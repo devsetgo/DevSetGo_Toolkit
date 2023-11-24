@@ -1,28 +1,33 @@
-import pytest
-from sqlalchemy import Column, Integer, String, select
-from sqlalchemy.ext.declarative import declarative_base
-from devsetgo_toolkit.async_database import AsyncDatabase, DBConfig, DatabaseOperations,DatabaseOperationException
+# -*- coding: utf-8 -*-
 import asyncio
 
-from sqlalchemy.exc import IntegrityError,SQLAlchemyError
+import pytest
+from sqlalchemy import Column, Integer, String, select
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
+from devsetgo_toolkit import (
+    AsyncDatabase,
+    DatabaseOperationException,
+    DatabaseOperations,
+    DBConfig,
+)
 
 config = {
-            "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
-            "echo": True,
-            "future": True,
-            "pool_recycle": 3600,
-        }
+    "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
+    "echo": True,
+    "future": True,
+    "pool_recycle": 3600,
+}
 db_config = DBConfig(config)
 async_db = AsyncDatabase(db_config)
 db_ops = DatabaseOperations(async_db)
 
 
 # Define User class here
-class User(async_db.Base): 
+class User(async_db.Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    name = Column(String,unique=True)
+    name = Column(String, unique=True)
 
 
 class TestDatabaseOperations:
@@ -38,9 +43,9 @@ class TestDatabaseOperations:
         # db_config = DBConfig(config)
         # async_db = AsyncDatabase(db_config)
         # db_ops = DatabaseOperations(async_db)
-        
+
         loop.run_until_complete(async_db.create_tables())
-        
+
         return db_ops
 
     @pytest.mark.asyncio
@@ -52,7 +57,9 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_count_query_sqlalchemy_error(self, db_ops, mocker):
         # Mock the execute method to raise an SQLAlchemyError
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=SQLAlchemyError)
+        mocker.patch.object(
+            db_ops.async_db, "get_db_session", side_effect=SQLAlchemyError
+        )
 
         # Check that count_query raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -61,7 +68,7 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_count_query_general_exception(self, db_ops, mocker):
         # Mock the execute method to raise an Exception
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=Exception)
+        mocker.patch.object(db_ops.async_db, "get_db_session", side_effect=Exception)
 
         # Check that count_query raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -76,7 +83,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_fetch_query_sqlalchemy_error(self, db_ops, mocker):
         # Mock the execute method to raise an SQLAlchemyError with a message
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=SQLAlchemyError("Test error message"))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=SQLAlchemyError("Test error message"),
+        )
 
         # Check that fetch_query raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -85,7 +96,7 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_fetch_query_general_exception(self, db_ops, mocker):
         # Mock the execute method to raise an Exception
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=Exception)
+        mocker.patch.object(db_ops.async_db, "get_db_session", side_effect=Exception)
 
         # Check that fetch_query raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -94,9 +105,7 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_fetch_queries(self, db_ops):
         # db_ops is already awaited by pytest, so you can use it directly
-        queries = {
-            "all_users": select(User)
-        }
+        queries = {"all_users": select(User)}
         results = await db_ops.fetch_queries(queries)
         assert results["all_users"] == []
 
@@ -119,7 +128,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_fetch_queries_sqlalchemy_error(self, db_ops, mocker):
         # Mock the get_db_session method to raise an SQLAlchemyError
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=SQLAlchemyError("Test error message"))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=SQLAlchemyError("Test error message"),
+        )
 
         # Check that fetch_queries raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -128,7 +141,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_fetch_queries_general_exception(self, db_ops, mocker):
         # Mock the get_db_session method to raise an Exception
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=Exception("Test error message"))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=Exception("Test error message"),
+        )
 
         # Check that fetch_queries raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -137,7 +154,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_execute_one_sqlalchemy_error(self, db_ops, mocker):
         # Mock the get_db_session method to raise an SQLAlchemyError
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=SQLAlchemyError("Test error message"))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=SQLAlchemyError("Test error message"),
+        )
 
         # Check that execute_one raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -146,7 +167,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_execute_one_general_exception(self, db_ops, mocker):
         # Mock the get_db_session method to raise an Exception
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=Exception("Test error message"))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=Exception("Test error message"),
+        )
 
         # Check that execute_one raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -155,7 +180,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_execute_many_sqlalchemy_error(self, db_ops, mocker):
         # Mock the get_db_session method to raise an SQLAlchemyError
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=SQLAlchemyError("Test error message"))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=SQLAlchemyError("Test error message"),
+        )
 
         # Check that execute_many raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -164,7 +193,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_execute_many_general_exception(self, db_ops, mocker):
         # Mock the get_db_session method to raise an Exception
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=Exception("Test error message"))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=Exception("Test error message"),
+        )
 
         # Check that execute_many raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -173,7 +206,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_execute_one_integrity_error(self, db_ops, mocker):
         # Mock the get_db_session method to raise an IntegrityError
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=IntegrityError(None, None, None, None))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=IntegrityError(None, None, None, None),
+        )
 
         # Check that execute_one raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):
@@ -182,7 +219,11 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_execute_many_integrity_error(self, db_ops, mocker):
         # Mock the get_db_session method to raise an IntegrityError
-        mocker.patch.object(db_ops.async_db, 'get_db_session', side_effect=IntegrityError(None, None, None, None))
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=IntegrityError(None, None, None, None),
+        )
 
         # Check that execute_many raises a DatabaseOperationException
         with pytest.raises(DatabaseOperationException):

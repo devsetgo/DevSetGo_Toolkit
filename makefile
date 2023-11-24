@@ -20,9 +20,9 @@ REQUIREMENTS_PATH = requirements.txt
 .PHONY: autoflake black cleanup create-docs flake8 help install isort run-example run-example-dev speedtest test
 
 autoflake: ## Remove unused imports and unused variables from Python code
-	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(SERVICE_PATH)
-	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(TESTS_PATH)
-	autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports -r $(EXAMPLE_PATH)
+	autoflake --in-place --remove-all-unused-imports --remove-unused-variables--exclude=__init__.py -r $(SERVICE_PATH)
+	# autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports -r $(TESTS_PATH)
+	# autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports -r $(EXAMPLE_PATH)
 
 black: ## Reformat Python code to follow the Black code style
 	black $(SERVICE_PATH)
@@ -38,7 +38,7 @@ create-docs: ## Build and deploy the project's documentation
 	mkdocs gh-deploy
 
 flake8: ## Run flake8 to check Python code for PEP8 compliance
-	flake8 --tee . > _flake8Report.txt
+	flake8 --tee . > htmlcov/_flake8Report.txt
 
 
 help:  ## Display this help message
@@ -67,3 +67,4 @@ test: ## Run the project's tests
 	pytest
 	sed -i 's|<source>/workspaces/DevSetGo_Toolkit</source>|<source>/github/workspace/DevSetGo_Toolkit</source>|' /workspaces/DevSetGo_Toolkit/coverage.xml
 	coverage-badge -o coverage.svg -f
+	flake8 --tee . > htmlcov/_flake8Report.txt
