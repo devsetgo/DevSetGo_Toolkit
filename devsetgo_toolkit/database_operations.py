@@ -197,8 +197,7 @@ class DatabaseOperations:
                     "details": "see logs for further information",
                 },
             )
-    
-    
+
     async def fetch_queries(self, queries: Dict[str, str], limit=500, offset=0):
         """
         Executes multiple fetch queries and returns the results.
@@ -306,7 +305,7 @@ class DatabaseOperations:
                     "details": "see logs for further information",
                 },
             )
-    
+
     async def execute_many(self, records: List[dict]):
         """
         Adds multiple records to the database.
