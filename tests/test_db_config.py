@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy import MetaData
 from devsetgo_toolkit.async_database import DBConfig
+
 
 def test_sqlite_supported_parameters():
     config = {
@@ -14,6 +16,7 @@ def test_sqlite_supported_parameters():
     assert isinstance(db_config.engine, AsyncEngine)
     assert isinstance(db_config.metadata, MetaData)
 
+
 def test_sqlite_unsupported_parameters():
     config = {
         "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
@@ -23,6 +26,7 @@ def test_sqlite_unsupported_parameters():
     }
     with pytest.raises(Exception):
         DBConfig(config)
+
 
 def test_postgresql_supported_parameters():
     config = {
@@ -38,6 +42,7 @@ def test_postgresql_supported_parameters():
     db_config = DBConfig(config)
     assert isinstance(db_config.engine, AsyncEngine)
     assert isinstance(db_config.metadata, MetaData)
+
 
 def test_postgresql_unsupported_parameters():
     config = {

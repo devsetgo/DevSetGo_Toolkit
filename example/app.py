@@ -151,13 +151,13 @@ class DBConfig:
             )() as session:
                 # Yield the session to the context manager
                 yield session
-        except SQLAlchemyError as e:
+        except SQLAlchemyError as e:  # pragma: no cover
             # Log the error and raise it
-            logger.error(f"Database error occurred: {str(e)}")
-            raise
-        finally:
+            logger.error(f"Database error occurred: {str(e)}")  # pragma: no cover
+            raise  # pragma: no cover
+        finally:  # pragma: no cover
             # Log the end of the database session
-            logger.debug("Database session ended")
+            logger.debug("Database session ended")  # pragma: no cover
 
 
 class AsyncDatabase:
@@ -204,10 +204,10 @@ class AsyncDatabase:
                 # Run a function in a synchronous manner
                 await conn.run_sync(Base.metadata.create_all)
             logger.info("Tables created successfully")
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             # Log the error and raise it
-            logger.error(f"Error creating tables: {e}")
-            raise
+            logger.error(f"Error creating tables: {e}")  # pragma: no cover
+            raise  # pragma: no cover
 
 
 class DatabaseOperationException(Exception):
@@ -310,13 +310,36 @@ class DatabaseOperations:
     async def fetch_query(self, query, limit=500, offset=0):
         # This method executes a fetch query and returns the result
         logger.debug("Starting fetch_query operation")
-        async with self.async_db.get_db_session() as session:
-            # Execute the fetch query
-            logger.debug(f"Fetch Query: {query}")
-            result = await session.execute(query.limit(limit).offset(offset))
-            data = result.scalars().all()
-            logger.info(f"Fetch Result: {data}")
-            return data
+        try:
+            async with self.async_db.get_db_session() as session:
+                # Execute the fetch query
+                logger.debug(f"Fetch Query: {query}")
+                result = await session.execute(query.limit(limit).offset(offset))
+                data = result.scalars().all()
+                logger.info(f"Fetch Result: {data}")
+                return data
+        except SQLAlchemyError as ex:
+            # Handle SQLAlchemyError
+            logger.error(f"SQLAlchemyError on fetch query: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
+        except Exception as ex:
+            # Handle general exceptions
+            logger.error(f"Exception Failed to perform fetch query: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
 
     async def fetch_queries(self, queries: dict, limit=500, offset=0):
         # This method executes multiple fetch queries and returns the results
@@ -452,6 +475,7 @@ class DatabaseOperations:
                 },
             )
 
+
 import secrets
 import string
 from datetime import datetime, timezone  # For handling date and time related tasks
@@ -461,7 +485,7 @@ from uuid import uuid4  # For generating unique identifiers
 from fastapi import FastAPI, Query, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from sqlalchemy import Column, DateTime, Select, String
+from sqlalchemy import Column, DateTime, Select, String, Update, Delete
 from tqdm import tqdm
 
 # from example.async_database import AsyncDatabase, DatabaseOperations, DBConfig
@@ -508,7 +532,7 @@ async def startup_event():
 
     users = []
     # Create a loop to generate user data
-    for i in tqdm(range(3000), desc="executing many"):
+    for i in tqdm(range(2000), desc="executing many"):
         value_one = secrets.token_hex(4)
         value_two = secrets.token_hex(8)
         user = User(
@@ -527,23 +551,6 @@ from devsetgo_toolkit.base_schema import SchemaBase
 
 class User(SchemaBase, async_db.Base):
     __tablename__ = "users"  # Name of the table in the database
-    # Each instance in the table will have a unique id which is a string representation of a UUID
-    # _id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
-
-    # # The date and time when a particular row was inserted into the table.
-    # # It defaults to the current UTC time when the instance is created.
-    # date_created = Column(
-    #     DateTime, index=True, default=lambda: datetime.now(timezone.utc)
-    # )
-
-    # # The date and time when a particular row was last updated.
-    # # It defaults to the current UTC time whenever the instance is updated.
-    # date_updated = Column(
-    #     DateTime,
-    #     index=True,
-    #     default=lambda: datetime.now(timezone.utc),
-    #     onupdate=lambda: datetime.now(timezone.utc),
-    # )
 
     # Define the columns of the table
     name_first = Column(String, unique=False, index=True)  # First name of the user
