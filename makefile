@@ -53,7 +53,7 @@ isort: ## Sort imports in Python code
 	isort $(EXAMPLE_PATH)
 
 run-example: ## Run the example application
-	uvicorn example.main:app --port ${PORT} --workers ${WORKER} --log-level $(shell echo ${LOG_LEVEL} | tr A-Z a-z)
+	uvicorn example.main:app --port ${PORT} --workers ${WORKER} --log-level $(LOG_LEVEL)
 
 run-example-dev: ## Run the example application with hot reloading
 	uvicorn example.main:app --port ${PORT} --reload
