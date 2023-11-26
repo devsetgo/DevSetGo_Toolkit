@@ -26,25 +26,27 @@ from devsetgo_toolkit import (
     system_health_endpoints,
 )
 
-# from devsetgo_toolkit.logger import logger
-import logging as logger
-from dsg_lib.logging_config import config_log
 
-config_log(
-    logging_directory="logs",
-    log_name="log.json",
-    logging_level="DEBUG",
-    log_rotation="100 MB",
-    log_retention="2 days",
-    log_backtrace=True,
-    log_format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}",
-    # log_serializer=False,
-    # log_diagnose=True,
-    # app_name="myapp",
-    # append_app_name=True,
-    # service_id="12345",
-    # append_service_id=True,
-)
+import logging as logger
+
+# from loguru import logger
+# from dsg_lib.logging_config import config_log
+
+# config_log(
+#     logging_directory="logs",
+#     log_name="log.log",
+#     logging_level="DEBUG",
+#     log_rotation="100 MB",
+#     log_retention="2 days",
+#     log_backtrace=True,
+#     log_format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}",
+#     log_serializer=False,
+#     log_diagnose=True,
+#     app_name="myapp",
+#     append_app_name=True,
+#     service_id="12345",
+#     append_service_id=True,
+# )
 
 
 async def create_a_bunch_of_Users(single_entry=0, many_entries=0):
@@ -87,7 +89,7 @@ async def lifespan(app: FastAPI):
 
     create_users = True
     if create_users:
-        await create_a_bunch_of_Users(single_entry=0, many_entries=10023)
+        await create_a_bunch_of_Users(single_entry=10, many_entries=100)
     yield
 
     tracemalloc.stop()
