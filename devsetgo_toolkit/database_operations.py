@@ -33,6 +33,8 @@ from devsetgo_toolkit.logger import (  # Importing logger from devsetgo_toolkit 
     logger,
 )
 
+# import logging as logger
+
 from .async_database import AsyncDatabase
 
 
@@ -84,13 +86,13 @@ class DatabaseOperations:
     -------
     count_query(query):
         Executes a count query and returns the result.
-    fetch_query(query, limit=500, offset=0):
+    get_query(query, limit=500, offset=0):
         Executes a fetch query and returns the result.
-    fetch_queries(queries: dict, limit=500, offset=0):
+    get_queries(queries: dict, limit=500, offset=0):
         Executes multiple fetch queries and returns the results.
-    execute_one(record):
+    insert_one(record):
         Adds a single record to the database.
-    execute_many(records: List):
+    insert_many(records: List):
         Adds multiple records to the database.
     """
 
@@ -107,6 +109,9 @@ class DatabaseOperations:
         """
         self.async_db = async_db
         logger.info("DatabaseOperations initialized")
+
+    def instance_to_dict(instance):
+        return {c.name: getattr(instance, c.name) for c in instance.__table__.columns}
 
     async def count_query(self, query):
         """
@@ -152,7 +157,7 @@ class DatabaseOperations:
                 },
             )
 
-    async def fetch_query(self, query, limit=500, offset=0):
+    async def get_query(self, query, limit=500, offset=0):
         """
         Executes a fetch query and returns the result.
 
@@ -166,7 +171,7 @@ class DatabaseOperations:
         Returns:
         list: The list of matching records.
         """
-        logger.debug("Starting fetch_query operation")
+        logger.debug("Starting get_query operation")
         try:
             async with self.async_db.get_db_session() as session:
                 # Execute the fetch query with the given limit and offset
@@ -198,7 +203,7 @@ class DatabaseOperations:
                 },
             )
 
-    async def fetch_queries(self, queries: Dict[str, str], limit=500, offset=0):
+    async def get_queries(self, queries: Dict[str, str], limit=500, offset=0):
         """
         Executes multiple fetch queries and returns the results.
 
@@ -212,7 +217,7 @@ class DatabaseOperations:
         Returns:
         Dict[str, list]: A dictionary where the key is the query name and the value is a list of matching records.
         """
-        logger.debug("Starting fetch_queries operation")
+        logger.debug("Starting get_queries operation")
         try:
             results = {}
             async with self.async_db.get_db_session() as session:
@@ -248,7 +253,7 @@ class DatabaseOperations:
                 },
             )
 
-    async def execute_one(self, record):
+    async def insert_one(self, record):
         """
         Adds a single record to the database.
 
@@ -263,11 +268,12 @@ class DatabaseOperations:
         Raises:
         DatabaseOperationException: If an error occurs during the database operation.
         """
-        logger.debug("Starting execute_one operation")
+        logger.debug("Starting insert_one operation")
         try:
             async with self.async_db.get_db_session() as session:
                 # Add the record to the session and commit
-                logger.debug(f"Record: {record}")
+                logger.debug(f"Record insert: {record}")
+                # session.insert(record)
                 session.add(record)
                 await session.commit()
             logger.info(f"Record operation was successful: {record}.")
@@ -306,7 +312,107 @@ class DatabaseOperations:
                 },
             )
 
-    async def execute_many(self, records: List[dict]):
+    async def update_one(self, table, record_id, new_values):
+        non_updatable_fields = ["_id", "date_created"]
+
+        logger.debug(
+            f"Starting update_one operation for record_id: {record_id} in table: {table.__name__}"
+        )
+
+        try:
+            async with self.async_db.get_db_session() as session:
+                # Fetch the record to be updated
+                logger.debug(f"Fetching record with id: {record_id}")
+                record = await session.get(table, record_id)
+                if not record:
+                    logger.error(f"No record found with id: {record_id}")
+                    raise DatabaseOperationException(
+                        status_code=404,
+                        detail={
+                            "error": "Record not found",
+                            "details": f"No record found with id {record_id}",
+                        },
+                    )
+
+                # Update the record with new values
+                logger.debug(f"Updating record with new values: {new_values}")
+                for key, value in new_values.items():
+                    if key not in non_updatable_fields:
+                        logger.debug(f"Updating field: {key} with value: {value}")
+                        setattr(record, key, value)
+                    else:
+                        logger.debug(f"Skipping non-updatable field: {key}")
+
+                # Commit the changes
+                logger.debug("Committing changes to the database")
+                await session.commit()
+
+                logger.info(f"Record update was successful: {record}")
+                return record
+        except SQLAlchemyError as ex:
+            # Handle SQLAlchemyError
+            logger.error(f"SQLAlchemyError on update: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
+        except Exception as ex:
+            # Handle general exceptions
+            logger.error(f"Exception occurred during update: {ex}")
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": "An unexpected error occurred",
+                    "details": str(ex),
+                },
+            )
+
+    # delete record by id from table
+    async def delete_one(self, table, record_id):
+        try:
+            async with self.async_db.get_db_session() as session:
+                # Fetch the record to be deleted
+                record = await session.get(table, record_id)
+
+                # If the record doesn't exist, return None
+                if not record:
+                    return None
+
+                # Delete the record
+                await session.delete(record)
+
+                # Commit the changes
+                await session.commit()
+
+                return {"success": "Record deleted successfully"}
+
+        except SQLAlchemyError as ex:
+            # Handle SQLAlchemyError
+            logger.error(f"SQLAlchemyError on delete: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": error_only,
+                    "details": "see logs for further information",
+                },
+            )
+        except Exception as ex:
+            # Handle general exceptions
+            logger.error(f"Exception occurred during update: {ex}")
+            raise DatabaseOperationException(
+                status_code=500,
+                detail={
+                    "error": "An unexpected error occurred",
+                    "details": str(ex),
+                },
+            )
+
+    async def insert_many(self, records: List[dict]):
         """
         Adds multiple records to the database.
 
@@ -321,7 +427,7 @@ class DatabaseOperations:
         Raises:
         DatabaseOperationException: If an error occurs during the database operation.
         """
-        logger.debug("Starting execute_many operation")
+        logger.debug("Starting insert_many operation")
         try:
             t0 = time.time()  # Record the start time of the operation
             async with self.async_db.get_db_session() as session:

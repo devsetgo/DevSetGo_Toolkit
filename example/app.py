@@ -258,13 +258,13 @@
 #     -------
 #     count_query(query):
 #         Executes a count query and returns the result.
-#     fetch_query(query, limit=500, offset=0):
+#     get_query(query, limit=500, offset=0):
 #         Executes a fetch query and returns the result.
-#     fetch_queries(queries: dict, limit=500, offset=0):
+#     get_queries(queries: dict, limit=500, offset=0):
 #         Executes multiple fetch queries and returns the results.
-#     execute_one(record):
+#     insert_one(record):
 #         Adds a single record to the database.
-#     execute_many(records: List):
+#     insert_many(records: List):
 #         Adds multiple records to the database.
 #     """
 
@@ -307,9 +307,9 @@
 #                 },
 #             )
 
-#     async def fetch_query(self, query, limit=500, offset=0):
+#     async def get_query(self, query, limit=500, offset=0):
 #         # This method executes a fetch query and returns the result
-#         logger.debug("Starting fetch_query operation")
+#         logger.debug("Starting get_query operation")
 #         try:
 #             async with self.async_db.get_db_session() as session:
 #                 # Execute the fetch query
@@ -341,9 +341,9 @@
 #                 },
 #             )
 
-#     async def fetch_queries(self, queries: dict, limit=500, offset=0):
+#     async def get_queries(self, queries: dict, limit=500, offset=0):
 #         # This method executes multiple fetch queries and returns the results
-#         logger.debug("Starting fetch_queries operation")
+#         logger.debug("Starting get_queries operation")
 #         try:
 #             results = {}
 #             async with self.async_db.get_db_session() as session:
@@ -379,9 +379,9 @@
 #                 },
 #             )
 
-#     async def execute_one(self, record):
+#     async def insert_one(self, record):
 #         # This method adds a single record to the database
-#         logger.debug("Starting execute_one operation")
+#         logger.debug("Starting insert_one operation")
 #         try:
 #             async with self.async_db.get_db_session() as session:
 #                 # Add the record to the session and commit
@@ -424,9 +424,9 @@
 #                 },
 #             )
 
-#     async def execute_many(self, records: List):
+#     async def insert_many(self, records: List):
 #         # This method adds multiple records to the database
-#         logger.debug("Starting execute_many operation")
+#         logger.debug("Starting insert_many operation")
 #         try:
 #             t0 = time.time()
 #             async with self.async_db.get_db_session() as session:
@@ -531,7 +531,7 @@ async def startup_event():
             name_last=f"Last{value}",
             email=f"user{value}@example.com",
         )
-        await db_ops.execute_one(user)
+        await db_ops.insert_one(user)
 
     users = []
     # Create a loop to generate user data
@@ -546,7 +546,7 @@ async def startup_event():
         users.append(user)
 
     # Use db_ops to add the users to the database
-    await db_ops.execute_many(users)
+    await db_ops.insert_many(users)
 
 
 from devsetgo_toolkit.base_schema import SchemaBase
@@ -631,7 +631,7 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
         db_users.append(db_user)
 
     # Insert the new users into the database
-    created_users = await db_ops.execute_many(db_users)
+    created_users = await db_ops.insert_many(db_users)
 
     # Log the number of created users
     logger.info(f"created_users: {len(created_users)}")

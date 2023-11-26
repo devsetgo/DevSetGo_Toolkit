@@ -170,7 +170,7 @@ async def read_users(
     # Create a SELECT query for the User table
     query = Select(User)
     # Execute the SELECT query to get the users, with the provided limit and offset
-    users = await db_ops.fetch_query(query=query, limit=limit, offset=offset)
+    users = await db_ops.get_query(query=query, limit=limit, offset=offset)
     # Return the total number of users, the number of users returned, and the users themselves
     return {
         "query_data": {"total_count": total_count, "count": len(users)},
@@ -186,7 +186,7 @@ async def create_user(user: UserBase):
         name_first=user.name_first, name_last=user.name_last, email=user.email
     )
     # Insert the new user into the database
-    created_user = await db_ops.execute_one(db_user)
+    created_user = await db_ops.insert_one(db_user)
     # Return the created user
     return created_user
 
@@ -204,7 +204,7 @@ async def create_users(user_list: UserList):
         for user in user_list.users
     ]
     # Insert the new users into the database
-    created_users = await db_ops.execute_many(db_users)
+    created_users = await db_ops.insert_many(db_users)
     # Log the created users
     logger.info(f"created_users: {created_users}")
     # Return the created users
@@ -237,7 +237,7 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
         db_users.append(db_user)
 
     # Insert the new users into the database
-    created_users = await db_ops.execute_many(db_users)
+    created_users = await db_ops.insert_many(db_users)
 
     # Log the number of created users
     logger.info(f"created_users: {len(created_users)}")
@@ -249,7 +249,7 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
 @app.get("/users/{user_id}", response_model=UserResponse)
 async def read_user(user_id: str):
     # Execute a SELECT query to get the user with the specified ID
-    users = await db_ops.fetch_query(Select(User).where(User._id == user_id))
+    users = await db_ops.get_query(Select(User).where(User._id == user_id))
     # If no users were found, raise a 404 error
     if not users:
         logger.info(f"user not found: {user_id}")

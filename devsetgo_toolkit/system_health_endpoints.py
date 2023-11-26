@@ -41,6 +41,8 @@ from devsetgo_toolkit import generate_code_dict
 # Importing database connector module
 from devsetgo_toolkit.logger import logger
 
+# import logging as logger
+
 # Store the start time of the application
 app_start_time = time.time()
 

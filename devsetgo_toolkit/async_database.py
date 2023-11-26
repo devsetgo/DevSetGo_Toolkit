@@ -26,6 +26,8 @@ from sqlalchemy.orm import declarative_base
 
 from devsetgo_toolkit.logger import logger
 
+# import logging as logger
+
 from .database_config import DBConfig
 
 # Creating a base class for declarative database models
