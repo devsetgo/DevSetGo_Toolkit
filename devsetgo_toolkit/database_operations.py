@@ -37,6 +37,9 @@ from .async_database import AsyncDatabase
 # )
 
 
+# TODO: Fix all tests for exceptions. Output has changed to return {"error": "error name", "details": error_only}
+
+
 class DatabaseOperationException(Exception):
     """
     A custom exception class for handling database operation errors.
@@ -134,24 +137,26 @@ class DatabaseOperations:
             # Handle SQLAlchemyError
             logger.error(f"SQLAlchemyError on count query: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "SQLAlchemyError", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except Exception as ex:
             # Handle general exceptions
             logger.error(f"Exception Failed to perform count query: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "General Exception", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
 
     async def get_query(self, query, limit=500, offset=0):
         """
@@ -180,24 +185,26 @@ class DatabaseOperations:
             # Handle SQLAlchemyError
             logger.error(f"SQLAlchemyError on fetch query: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "SQLAlchemyError", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except Exception as ex:
             # Handle general exceptions
             logger.error(f"Exception Failed to perform fetch query: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "General Exception", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
 
     async def get_queries(self, queries: Dict[str, str], limit=500, offset=0):
         """
@@ -230,24 +237,26 @@ class DatabaseOperations:
             # Handle SQLAlchemyError
             logger.error(f"SQLAlchemyError on fetch queries: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "SQLAlchemyError", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except Exception as ex:
             # Handle general exceptions
             logger.error(f"Exception Failed to perform fetch queries: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "General Exception", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
 
     async def insert_one(self, record):
         """
@@ -278,35 +287,38 @@ class DatabaseOperations:
             # Handle IntegrityError
             logger.error(f"IntegrityError on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=400,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "IntegrityError", "details": error_only}
+            #  raise DatabaseOperationException(
+            #     status_code=400,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except SQLAlchemyError as ex:
             # Handle SQLAlchemyError
             logger.error(f"SQLAlchemyError on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "SQLAlchemyError", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except Exception as ex:
             # Handle general exceptions
             logger.error(f"Exception Failed to perform operation on record: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "General Exception", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
 
     async def update_one(self, table, record_id: str, new_values: dict):
         non_updatable_fields = ["id", "date_created"]
@@ -351,25 +363,27 @@ class DatabaseOperations:
             # Handle SQLAlchemyError
             logger.error(f"SQLAlchemyError on update: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "record_id": record_id,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "SQLAlchemy", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "record_id": record_id,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except Exception as ex:
             # Handle general exceptions
             logger.error(f"Exception occurred during update: {ex}")
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": "An unexpected error occurred",
-                    "record_id": record_id,
-                    "details": str(ex),
-                },
-            )
+            return {"error": "General Exception", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": "An unexpected error occurred",
+            #         "record_id": record_id,
+            #         "details": str(ex),
+            #     },
+            # )
 
     # delete record by id from table
     async def delete_one(self, table, record_id):
@@ -394,23 +408,25 @@ class DatabaseOperations:
             # Handle SQLAlchemyError
             logger.error(f"SQLAlchemyError on delete: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "SQLAlchemyError", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except Exception as ex:
             # Handle general exceptions
             logger.error(f"Exception occurred during update: {ex}")
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": "An unexpected error occurred",
-                    "details": str(ex),
-                },
-            )
+            return {"error": "General Exception", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": "An unexpected error occurred",
+            #         "details": str(ex),
+            #     },
+            # )
 
     async def insert_many(self, records: List[dict]):
         """
@@ -446,32 +462,35 @@ class DatabaseOperations:
             # Handle IntegrityError, which occurs when a database constraint is violated
             logger.error(f"IntegrityError on records: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=400,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "IntergityError", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=400,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except SQLAlchemyError as ex:
             # Handle SQLAlchemyError, which is a base class for all SQLAlchemy exceptions
             logger.error(f"SQLAlchemyError on records: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "SQLAlchemyError", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
         except Exception as ex:
             # Handle general exceptions
             logger.error(f"Exception Failed to perform operations on records: {ex}")
             error_only = str(ex).split("[SQL:")[0]
-            raise DatabaseOperationException(
-                status_code=500,
-                detail={
-                    "error": error_only,
-                    "details": "see logs for further information",
-                },
-            )
+            return {"error": "General Exception", "details": error_only}
+            # raise DatabaseOperationException(
+            #     status_code=500,
+            #     detail={
+            #         "error": error_only,
+            #         "details": "see logs for further information",
+            #     },
+            # )
