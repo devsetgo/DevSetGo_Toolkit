@@ -224,7 +224,7 @@ class TestDatabaseOperations:
 
         user = User(name="Mike12345")
         user_record = await db_ops.insert_one(user)
-        updated_user = {"name": "John12345"}
+        updated_user = {"name": "John12345", "id": "bob"}
         await db_ops.update_one(
             table=User, record_id=user_record.id, new_values=updated_user
         )
@@ -233,6 +233,18 @@ class TestDatabaseOperations:
         )
         # print(updated_user_db)
         assert updated_user_db[0].name == "John12345"
+
+    # @pytest.mark.asyncio
+    # async def test_update_one_no_record(self, db_ops):
+    #     # db_ops is already awaited by pytest, so you can use it directly
+
+    #     updated_user = {"name": "John12345", "id": "bob"}
+    #     await db_ops.update_one(
+    #         table=User, record_id=1234567890, new_values=updated_user
+    #     )
+
+    #     # print(updated_user_db)
+    #     assert updated_user_db[0].name == "John12345"
 
     @pytest.mark.asyncio
     async def test_update_one_sqlalchemy_error(self, db_ops, mocker):
