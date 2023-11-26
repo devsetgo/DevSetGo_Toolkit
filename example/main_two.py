@@ -14,7 +14,7 @@ The application includes a startup event that creates the database tables if the
 
 The application's root endpoint redirects to the /docs endpoint, which provides an interactive API documentation.
 
-The application includes a /users/count endpoint that returns the total number of users, a /users endpoint that returns a list of users with pagination, a /users/ endpoint that creates a new user, a /users/bulk/ endpoint that creates multiple users, a /users/bulk/auto endpoint that automatically generates and creates multiple users, and a /users/{user_id} endpoint that returns the details of a specific user.
+The application includes a /users/count endpoint that returns the total number of users, a /users endpoint that returns a list of users with pagination, a /users/ endpoint that creates a new user, a /users/bulk/ endpoint that creates multiple users, a /users/bulk/auto endpoint that automatically generates and creates multiple users, and a /users/{userid} endpoint that returns the details of a specific user.
 
 The application includes a /api/v1/tools endpoint and a /api/health endpoint, which are defined in separate routers.
 """
@@ -88,7 +88,7 @@ class UserBase(BaseModel):
 # UserResponse class inherits from UserBase
 # This class is used for the response when retrieving a user
 class UserResponse(UserBase):
-    _id: str  # ID of the user
+    id: str  # ID of the user
     date_created: datetime  # Date when the user was created
     date_updated: datetime  # Date when the user was last updated
 
@@ -245,14 +245,14 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
     return created_users
 
 
-# Define a route for the "/users/{user_id}" URL
-@app.get("/users/{user_id}", response_model=UserResponse)
-async def read_user(user_id: str):
+# Define a route for the "/users/{userid}" URL
+@app.get("/users/{userid}", response_model=UserResponse)
+async def read_user(userid: str):
     # Execute a SELECT query to get the user with the specified ID
-    users = await db_ops.get_query(Select(User).where(User._id == user_id))
+    users = await db_ops.get_query(Select(User).where(User.id == userid))
     # If no users were found, raise a 404 error
     if not users:
-        logger.info(f"user not found: {user_id}")
+        logger.info(f"user not found: {userid}")
         raise HTTPException(status_code=404, detail="User not found")
 
     # Log the found user

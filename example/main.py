@@ -8,13 +8,15 @@ import tracemalloc
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone  # For handling date and time related tasks
 from random import choices
-from typing import List, Optional, Dict, Any  # For type hinting
+from typing import Any, Dict, List, Optional  # For type hinting
 from uuid import uuid4  # For generating unique identifiers
 
+from dsg_lib.logging_config import config_log
 from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.responses import ORJSONResponse, RedirectResponse
+from loguru import logger
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from sqlalchemy import Column, Select, String, Update, Delete
+from sqlalchemy import Column, Delete, Select, String, Update
 from tqdm import tqdm
 
 from devsetgo_toolkit import (
@@ -26,27 +28,20 @@ from devsetgo_toolkit import (
     system_health_endpoints,
 )
 
+logging.basicConfig()
+# logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
-import logging as logger
 
-# from loguru import logger
-# from dsg_lib.logging_config import config_log
-
-# config_log(
-#     logging_directory="logs",
-#     log_name="log.log",
-#     logging_level="DEBUG",
-#     log_rotation="100 MB",
-#     log_retention="2 days",
-#     log_backtrace=True,
-#     log_format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}",
-#     log_serializer=False,
-#     log_diagnose=True,
-#     app_name="myapp",
-#     append_app_name=True,
-#     service_id="12345",
-#     append_service_id=True,
-# )
+config_log(
+    logging_directory="logs",
+    log_name="log.log",
+    logging_level="WARNING",
+    log_rotation="100 MB",
+    log_retention="2 days",
+    log_backtrace=True,
+    log_format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}",
+    log_serializer=False,
+)
 
 
 async def create_a_bunch_of_Users(single_entry=0, many_entries=0):
@@ -89,7 +84,7 @@ async def lifespan(app: FastAPI):
 
     create_users = True
     if create_users:
-        await create_a_bunch_of_Users(single_entry=10, many_entries=100)
+        await create_a_bunch_of_Users(single_entry=1, many_entries=5000)
     yield
 
     tracemalloc.stop()
@@ -167,7 +162,7 @@ class UserBase(BaseModel):
 # UserResponse class inherits from UserBase
 # This class is used for the response when retrieving a user
 class UserResponse(UserBase):
-    _id: str  # ID of the user
+    id: str  # ID of the user
     date_created: datetime  # Date when the user was created
     date_updated: datetime  # Date when the user was last updated
 
@@ -205,23 +200,25 @@ class Message(BaseModel):
 
 
 # Define a route for the root ("/") URL
-@app.get("/")
+@app.get("/", tags=["root"])
 async def root():
     # When this route is accessed, redirect the client to "/docs" with a 307 status code
     return RedirectResponse("/docs", status_code=307)
 
 
 # Define a route for the "/users/count" URL
-@app.get("/users/count")
+@app.get("/users/count", tags=["users"])
 async def count_users():
     # Execute a count query on the User table
     count = await db_ops.count_query(Select(User))
     # Return the count as a JSON object
-    return {"count": count}
+    # logger.info(f"count: {count}")
+    # return {"count": count}
+    return ORJSONResponse(content={"count": count})
 
 
 # Define a route for the "/users" URL
-@app.get("/users", response_model=ReadUsersResponse)
+@app.get("/users", tags=["users"])  # , response_model=ReadUsersResponse)
 async def read_users(
     limit: int = Query(
         None, alias="limit", ge=1, le=1000
@@ -246,13 +243,13 @@ async def read_users(
     query = Select(User)
     # Execute the SELECT query to get the users, with the provided limit and offset
     users = await db_ops.get_query(query=query, limit=limit, offset=offset)
+    # Calculate the current count
+    current_count = len(users)
     # Return the total number of users, the number of users returned, and the users themselves
-    # return {
-    #     "query_data": {"total_count": total_count, "count": len(users)},
-    #     "users": users,
-    # }
     return ReadUsersResponse(
-        query_data=QueryData(total_count=total_count, current_count=len(users)),
+        query_data=QueryData(
+            total_count=total_count, count=len(users), current_count=current_count
+        ),
         users=users,
     )
 
@@ -260,6 +257,7 @@ async def read_users(
 # Define a route for the "/users/bulk/auto" URL
 @app.get(
     "/users/bulk/auto",
+    tags=["users"],
     response_model=List[UserResponse],
     status_code=status.HTTP_201_CREATED,
 )
@@ -292,10 +290,10 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
 
 
 # Define a route for the "/users/{user_id}" URL
-@app.get("/users/{user_id}", response_model=UserResponse)
+@app.get("/users/{user_id}", tags=["users"], response_model=UserResponse)
 async def read_user(user_id: str):
     # Execute a SELECT query to get the user with the specified ID
-    users = await db_ops.get_query(Select(User).where(User._id == user_id))
+    users = await db_ops.get_query(Select(User).where(User.id == user_id))
     # If no users were found, raise a 404 error
     if not users:
         logger.info(f"user not found: {user_id}")
@@ -303,19 +301,22 @@ async def read_user(user_id: str):
 
     # Log the found user
     logger.info(f"users: {users[0]}")
+    print(f"users: {users}")
     # Return the found user
     return users[0]
 
 
 # Define a route for the "/users/{user_id}" URL that responds to PUT requests
-@app.put("/users/{user_id}")  # , response_model=UserResponse)
+@app.put("/users/{user_id}", tags=["users"], response_model=UserResponse)
 async def update_user(user_id: str, user: UserUpdate):
     # Prepare the new data for the user
     new_data = user.dict()
-
+    print(new_data)
     # Execute the update_one function to update the user with the specified ID
     updated_user = await db_ops.update_one(
-        table=User, record_id=user_id, new_values=new_data
+        table=User,
+        record_id=user_id,
+        new_values=new_data,  # Change record_id to record_id
     )
 
     # If no users were updated, raise a 404 error
@@ -328,22 +329,27 @@ async def update_user(user_id: str, user: UserUpdate):
 
 
 # Define a route for the "/users/{user_id}" URL that responds to DELETE requests
-@app.delete("/users/{user_id}")
+@app.delete("/users/{user_id}", tags=["users"])
 async def delete_user(user_id: str):
     # Execute the delete_one function to delete the user with the specified ID
     result = await db_ops.delete_one(table=User, record_id=user_id)
 
     # If the delete was successful, return a success message
     if result:
-        return {"message": "User deleted successfully"}
-
+        # return {"message": "User deleted successfully"}
+        return ORJSONResponse(content={"message": "User deleted successfully"})
     # If the delete wasn't successful, return an error message
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
 
 # Define a route for the "/users/" URL that responds to POST requests
-@app.post("/users/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/users/",
+    tags=["users"],
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_user(user: UserBase):
     # Create a new User instance from the provided data
     db_user = User(
@@ -358,6 +364,7 @@ async def create_user(user: UserBase):
 # Define a route for the "/users/bulk/" URL that responds to POST requests
 @app.post(
     "/users/bulk/",
+    tags=["users"],
     response_model=List[UserResponse],
     status_code=status.HTTP_201_CREATED,
 )
@@ -373,3 +380,18 @@ async def create_users(user_list: UserList):
     logger.info(f"created_users: {created_users}")
     # Return the created users
     return created_users
+
+
+from devsetgo_toolkit import system_health_endpoints
+
+# User configuration
+config = {
+    # "enable_status_endpoint": False, # on by default
+    # "enable_uptime_endpoint": False, # on by default
+    "enable_heapdump_endpoint": True,  # off by default
+}
+
+
+# Health router
+health_router = system_health_endpoints(config)
+app.include_router(health_router, prefix="/api/health", tags=["system-health"])

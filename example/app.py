@@ -596,7 +596,7 @@ class UserBase(BaseModel):
 
 
 class UserResponse(UserBase):
-    _id: str  # ID of the user
+    id: str  # ID of the user
     date_created: datetime  # Date when the user was created
     date_updated: datetime  # Date when the user was last updated
 

@@ -1,10 +1,10 @@
 # Base Schema Module
 
-This module defines the base schema for database models in the application. It uses SQLAlchemy as the ORM and provides a `SchemaBase` class that all other models should inherit from. The `SchemaBase` class includes common columns that are needed for most models like `_id`, `date_created`, and `date_updated`.
+This module defines the base schema for database models in the application. It uses SQLAlchemy as the ORM and provides a `SchemaBase` class that all other models should inherit from. The `SchemaBase` class includes common columns that are needed for most models like `id`, `date_created`, and `date_updated`.
 
 ## Columns
 
-- `_id`: A unique identifier for each record. It's a string representation of a UUID.
+- `id`: A unique identifier for each record. It's a string representation of a UUID.
 - `date_created`: The date and time when a particular row was inserted into the table. It defaults to the current UTC time when the instance is created.
 - `date_updated`: The date and time when a particular row was last updated. It defaults to the current UTC time whenever the instance is updated.
 
@@ -95,7 +95,7 @@ class UserBase(BaseModel):
 
 
 class UserResponse(UserBase):
-    _id: str
+    id: str
     date_created: datetime
     date_updated: datetime
 
@@ -197,9 +197,9 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
     return created_users
 
 
-@app.get("/users/{user_id}", response_model=UserResponse)
-async def read_user(user_id: str):
-    users = await db_ops.get_query(Select(User).where(User._id == user_id))
+@app.get("/users/{userid}", response_model=UserResponse)
+async def read_user(userid: str):
+    users = await db_ops.get_query(Select(User).where(User.id == userid))
     if not users:
         raise HTTPException(status_code=404, detail="User not found")
     return users[0]

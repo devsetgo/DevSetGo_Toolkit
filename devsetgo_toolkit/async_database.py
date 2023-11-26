@@ -22,13 +22,14 @@ This module uses the logger from the devsetgo_toolkit for logging.
 
 # Importing necessary modules and functions
 
+import logging as logger
+
 from sqlalchemy.orm import declarative_base
 
-from devsetgo_toolkit.logger import logger
-
-# import logging as logger
-
 from .database_config import DBConfig
+
+# from devsetgo_toolkit.logger import logger
+
 
 # Creating a base class for declarative database models
 Base = declarative_base()

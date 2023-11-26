@@ -3,6 +3,7 @@
 """
 """
 
+import logging as logger
 import time  # Importing time module to work with times
 from contextlib import (  # Importing asynccontextmanager from contextlib for creating context managers
     asynccontextmanager,
@@ -29,13 +30,11 @@ from sqlalchemy.orm import (  # Importing declarative_base and sessionmaker from
     sessionmaker,
 )
 
-from devsetgo_toolkit.logger import (  # Importing logger from devsetgo_toolkit for logging
-    logger,
-)
-
-# import logging as logger
-
 from .async_database import AsyncDatabase
+
+# from devsetgo_toolkit.logger import (  # Importing logger from devsetgo_toolkit for logging
+#     logger,
+# )
 
 
 class DatabaseOperationException(Exception):
@@ -109,9 +108,6 @@ class DatabaseOperations:
         """
         self.async_db = async_db
         logger.info("DatabaseOperations initialized")
-
-    def instance_to_dict(instance):
-        return {c.name: getattr(instance, c.name) for c in instance.__table__.columns}
 
     async def count_query(self, query):
         """
@@ -312,8 +308,8 @@ class DatabaseOperations:
                 },
             )
 
-    async def update_one(self, table, record_id, new_values):
-        non_updatable_fields = ["_id", "date_created"]
+    async def update_one(self, table, record_id: str, new_values: dict):
+        non_updatable_fields = ["id", "date_created"]
 
         logger.debug(
             f"Starting update_one operation for record_id: {record_id} in table: {table.__name__}"
@@ -344,10 +340,12 @@ class DatabaseOperations:
                         logger.debug(f"Skipping non-updatable field: {key}")
 
                 # Commit the changes
-                logger.debug("Committing changes to the database")
+                logger.debug(f"Committing changes to the database for ID: {record_id}")
                 await session.commit()
 
-                logger.info(f"Record update was successful: {record}")
+                logger.info(
+                    f"Record update was successful: ID: {record_id}, Record: {record}"
+                )
                 return record
         except SQLAlchemyError as ex:
             # Handle SQLAlchemyError
@@ -357,6 +355,7 @@ class DatabaseOperations:
                 status_code=500,
                 detail={
                     "error": error_only,
+                    "record_id": record_id,
                     "details": "see logs for further information",
                 },
             )
@@ -367,6 +366,7 @@ class DatabaseOperations:
                 status_code=500,
                 detail={
                     "error": "An unexpected error occurred",
+                    "record_id": record_id,
                     "details": str(ex),
                 },
             )

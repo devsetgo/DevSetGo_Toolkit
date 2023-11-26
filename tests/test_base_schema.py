@@ -41,19 +41,19 @@ def test_schema_base(db_session: Session):
     user = User()
     user.name_first = "Test"
 
-    # Add the instance to the session and commit it to generate _id
+    # Add the instance to the session and commit it to generate id
     db_session.add(user)
     db_session.commit()
 
-    # Assert _id is a valid UUID
-    assert isinstance(user._id, str)
+    # Assert id is a valid UUID
+    assert isinstance(user.id, str)
 
     # Assert date_created and date_updated are set upon creation
     assert isinstance(user.date_created, datetime.datetime)
     assert isinstance(user.date_updated, datetime.datetime)
 
     # Update the instance and commit changes
-    user._id = str(uuid4())
+    user.id = str(uuid4())
     db_session.commit()
 
     # Assert date_updated is updated after editing
