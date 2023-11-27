@@ -326,13 +326,30 @@ class DatabaseOperations:
             logger.error(f"Exception occurred during record update: {ex}")
             return {"error": "General Exception", "details": str(ex)}
 
-    async def delete_one(self, table, record_id):
+    async def delete_one(self, table, record_id: str):
+        """
+        Deletes a single record from the database.
+
+        This method takes a table and a record ID. It fetches the record from the database using the provided ID, deletes the record from the session, and commits the session. If the operation is successful, it returns a success message. If an error occurs during the operation, it logs the error and returns a dictionary containing the error details.
+
+        Parameters:
+        table (Table): The table in the database where the record is located.
+        record_id (str): The ID of the record to delete.
+
+        Returns:
+        dict: A success message if the operation is successful, otherwise a dictionary containing the error details.
+        """
+        logger.debug(
+            f"Starting delete_one operation for record_id: {record_id} in table: {table.__name__}"
+        )
+
         try:
             async with self.async_db.get_db_session() as session:
                 # Fetch the record to be deleted
+                logger.debug(f"Fetching record with id: {record_id}")
                 record = await session.get(table, record_id)
 
-                # If the record doesn't exist, return None
+                # If the record doesn't exist, return an error
                 if not record:
                     logger.error(f"No record found with id: {record_id}")
                     return {
@@ -341,11 +358,16 @@ class DatabaseOperations:
                     }
 
                 # Delete the record
+                logger.debug(f"Deleting record with id: {record_id}")
                 await session.delete(record)
 
                 # Commit the changes
+                logger.debug(
+                    f"Committing changes to delete record with id: {record_id}"
+                )
                 await session.commit()
 
+                logger.info(f"Record deleted successfully: {record_id}")
                 return {"success": "Record deleted successfully"}
 
         except SQLAlchemyError as ex:
