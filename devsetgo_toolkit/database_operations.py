@@ -272,6 +272,19 @@ class DatabaseOperations:
             return {"error": "General Exception", "details": error_only}
 
     async def update_one(self, table, record_id: str, new_values: dict):
+        """
+        Updates a single record in the database.
+
+        This method takes a table, a record ID, and a dictionary of new values. It fetches the record from the database using the provided ID, updates the record with the new values, and commits the session. If the operation is successful, it returns the updated record. If an error occurs during the operation, it logs the error and returns a dictionary containing the error details.
+
+        Parameters:
+        table (Table): The table in the database where the record is located.
+        record_id (str): The ID of the record to update.
+        new_values (dict): The new values to update the record with, represented as a dictionary where the keys are the column names and the values are the new column values.
+
+        Returns:
+        dict or dict: The record that was updated in the database if the operation is successful, otherwise a dictionary containing the error details.
+        """
         non_updatable_fields = ["id", "date_created"]
 
         logger.debug(
@@ -294,27 +307,23 @@ class DatabaseOperations:
                 logger.debug(f"Updating record with new values: {new_values}")
                 for key, value in new_values.items():
                     if key not in non_updatable_fields:
-                        logger.debug(f"Updating field: {key} with value: {value}")
                         setattr(record, key, value)
-                    else:
-                        logger.debug(f"Skipping non-updatable field: {key}")
-
-                # Commit the changes
-                logger.debug(f"Committing changes to the database for ID: {record_id}")
                 await session.commit()
-
-                logger.info(
-                    f"Record update was successful: ID: {record_id}, Record: {record}"
-                )
+                logger.info(f"Record updated successfully: {record}")
                 return record
+        except IntegrityError as ex:
+            # Log and handle IntegrityError
+            logger.error(f"IntegrityError occurred during record update: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            return {"error": "IntegrityError", "details": error_only}
         except SQLAlchemyError as ex:
-            # Handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError on update: {ex}")
+            # Log and handle SQLAlchemyError
+            logger.error(f"SQLAlchemyError occurred during record update: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             return {"error": "SQLAlchemyError", "details": error_only}
         except Exception as ex:
-            # Handle general exceptions
-            logger.error(f"Exception occurred during update: {ex}")
+            # Log and handle general exceptions
+            logger.error(f"Exception occurred during record update: {ex}")
             return {"error": "General Exception", "details": str(ex)}
 
     async def delete_one(self, table, record_id):
