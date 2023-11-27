@@ -192,10 +192,10 @@ class DatabaseOperations:
         """
         Adds a single record to the database.
 
-        This method takes a record, adds it to the database session, and commits the session. If the operation is successful, it returns the record. If an error occurs during the operation, it raises a DatabaseOperationException with detailed information about the error.
+        This method takes a dictionary representing a record, adds it to the database session, and commits the session. If the operation is successful, it returns the inserted record. If an error occurs during the operation, it raises a DatabaseOperationException.
 
         Parameters:
-        record (dict): The record to add to the database.
+        record (dict): The record to add to the database, represented as a dictionary where the keys are the column names and the values are the corresponding column values.
 
         Returns:
         dict: The record that was added to the database.
@@ -207,24 +207,24 @@ class DatabaseOperations:
         try:
             async with self.async_db.get_db_session() as session:
                 # Add the record to the session and commit
-                logger.debug(f"Record insert: {record}")
+                logger.debug(f"Adding record to session: {record}")
                 session.add(record)
                 await session.commit()
-            logger.info(f"Record operation was successful: {record}.")
-            return record
+                logger.info(f"Record added successfully: {record}")
+                return record
         except IntegrityError as ex:
-            # Handle IntegrityError
-            logger.error(f"IntegrityError on record: {ex}")
+            # Log and handle IntegrityError
+            logger.error(f"IntegrityError occurred during record insertion: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             return {"error": "IntegrityError", "details": error_only}
         except SQLAlchemyError as ex:
-            # Handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError on record: {ex}")
+            # Log and handle SQLAlchemyError
+            logger.error(f"SQLAlchemyError occurred during record insertion: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             return {"error": "SQLAlchemyError", "details": error_only}
         except Exception as ex:
-            # Handle general exceptions
-            logger.error(f"Exception occurred during insert one: {ex}")
+            # Log and handle general exceptions
+            logger.error(f"Exception occurred during record insertion: {ex}")
             return {"error": "General Exception", "details": str(ex)}
 
     async def insert_many(self, records: List[dict]):
