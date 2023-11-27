@@ -49,6 +49,29 @@ from .async_database import AsyncDatabase
 # Importing declarative_base and sessionmaker from sqlalchemy for ORM operations
 
 
+def handle_exceptions(ex):
+    """
+    Handles exceptions for database operations.
+
+    Parameters:
+    ex (Exception): The exception to handle.
+
+    Returns:
+    dict: A dictionary containing the error details.
+    """
+    if isinstance(ex, IntegrityError):
+        logger.error(f"IntegrityError occurred: {ex}")
+        error_only = str(ex).split("[SQL:")[0]
+        return {"error": "IntegrityError", "details": error_only}
+    elif isinstance(ex, SQLAlchemyError):
+        logger.error(f"SQLAlchemyError occurred: {ex}")
+        error_only = str(ex).split("[SQL:")[0]
+        return {"error": "SQLAlchemyError", "details": error_only}
+    else:
+        logger.error(f"Exception occurred: {ex}")
+        return {"error": "General Exception", "details": str(ex)}
+
+
 class DatabaseOperations:
     """
         The DatabaseOperations class provides methods for executing various types of database operations asynchronously using SQLAlchemy.
@@ -105,16 +128,12 @@ class DatabaseOperations:
                 count = result.scalar()
                 logger.info(f"Count query executed successfully. Result: {count}")
                 return count
-        except SQLAlchemyError as ex:
-            # Log and handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError occurred during count query execution: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "SQLAlchemyError", "details": error_only}
+        # Catch any exception that occurs during the operation
         except Exception as ex:
-            # Log and handle general exceptions
-            logger.error(f"Exception occurred during count query execution: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "General Exception", "details": error_only}
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
 
     async def get_query(self, query, limit=500, offset=0):
         """
@@ -141,16 +160,12 @@ class DatabaseOperations:
                 records = result.scalars().all()
                 logger.info(f"Fetch query executed successfully. Records: {records}")
                 return records
-        except SQLAlchemyError as ex:
-            # Log and handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError occurred during fetch query execution: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "SQLAlchemyError", "details": error_only}
+        # Catch any exception that occurs during the operation
         except Exception as ex:
-            # Log and handle general exceptions
-            logger.error(f"Exception occurred during fetch query execution: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "General Exception", "details": error_only}
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
 
     async def get_queries(self, queries: Dict[str, str], limit=500, offset=0):
         """
@@ -179,16 +194,12 @@ class DatabaseOperations:
                     logger.info(f"Fetch Result: {data}")
                     results[query_name] = data
             return results
-        except SQLAlchemyError as ex:
-            # Handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError on fetch queries: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "SQLAlchemyError", "details": error_only}
-
+        # Catch any exception that occurs during the operation
         except Exception as ex:
-            # Handle general exceptions
-            logger.error(f"Exception occurred during get queries: {ex}")
-            return {"error": "General Exception", "details": str(ex)}
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
 
     async def insert_one(self, record):
         """
@@ -214,20 +225,12 @@ class DatabaseOperations:
                 await session.commit()
                 logger.info(f"Record added successfully: {record}")
                 return record
-        except IntegrityError as ex:
-            # Log and handle IntegrityError
-            logger.error(f"IntegrityError occurred during record insertion: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "IntegrityError", "details": error_only}
-        except SQLAlchemyError as ex:
-            # Log and handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError occurred during record insertion: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "SQLAlchemyError", "details": error_only}
+        # Catch any exception that occurs during the operation
         except Exception as ex:
-            # Log and handle general exceptions
-            logger.error(f"Exception occurred during record insertion: {ex}")
-            return {"error": "General Exception", "details": str(ex)}
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
 
     async def insert_many(self, records):
         """
@@ -313,20 +316,12 @@ class DatabaseOperations:
                 await session.commit()
                 logger.info(f"Record updated successfully: {record}")
                 return record
-        except IntegrityError as ex:
-            # Log and handle IntegrityError
-            logger.error(f"IntegrityError occurred during record update: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "IntegrityError", "details": error_only}
-        except SQLAlchemyError as ex:
-            # Log and handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError occurred during record update: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "SQLAlchemyError", "details": error_only}
+        # Catch any exception that occurs during the operation
         except Exception as ex:
-            # Log and handle general exceptions
-            logger.error(f"Exception occurred during record update: {ex}")
-            return {"error": "General Exception", "details": str(ex)}
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
 
     async def delete_one(self, table, record_id: str):
         """
@@ -372,13 +367,9 @@ class DatabaseOperations:
                 logger.info(f"Record deleted successfully: {record_id}")
                 return {"success": "Record deleted successfully"}
 
-        except SQLAlchemyError as ex:
-            # Handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError on delete: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "SQLAlchemyError", "details": error_only}
-
+        # Catch any exception that occurs during the operation
         except Exception as ex:
-            # Handle general exceptions
-            logger.error(f"Exception occurred during delete one: {ex}")
-            return {"error": "General Exception", "details": str(ex)}
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
