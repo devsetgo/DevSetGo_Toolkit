@@ -259,22 +259,12 @@ class DatabaseOperations:
                     f"Record operations were successful. {num_records} records were created in {t1:.4f} seconds."
                 )
                 return records  # Return the list of records added
-        except IntegrityError as ex:
-            # Handle IntegrityError, which occurs when a database constraint is violated
-            logger.error(f"IntegrityError on records: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "IntergityError", "details": error_only}
-
-        except SQLAlchemyError as ex:
-            # Handle SQLAlchemyError, which is a base class for all SQLAlchemy exceptions
-            logger.error(f"SQLAlchemyError on records: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "SQLAlchemyError", "details": error_only}
+        # Catch any exception that occurs during the operation
         except Exception as ex:
-            # Handle general exceptions
-            logger.error(f"Exception Failed to perform operations on records: {ex}")
-            error_only = str(ex).split("[SQL:")[0]
-            return {"error": "General Exception", "details": error_only}
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
 
     async def update_one(self, table, record_id: str, new_values: dict):
         """

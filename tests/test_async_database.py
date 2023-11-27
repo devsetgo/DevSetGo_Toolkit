@@ -233,7 +233,7 @@ class TestDatabaseOperations:
 
         # Check that insert_many returns an error dictionary
         result = await db_ops.insert_many([User(name="test1"), User(name="test2")])
-        assert result["error"] == "IntergityError"
+        assert result["error"] == "IntegrityError"  # Corrected spelling
         assert isinstance(result["details"], str)
         assert result["details"] != ""
 
