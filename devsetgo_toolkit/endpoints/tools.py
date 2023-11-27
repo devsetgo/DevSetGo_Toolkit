@@ -260,3 +260,28 @@
 
 #     except Exception as ex:
 #         return {"email_address": email_address, "valid": False, "error": f"An Exception for '{str(ex)}' has occured. This could be due to no value is set on the domain."}
+
+
+# html = """
+# <!--- Begin Return HTML for email validation --->
+# <ul>
+# {% for key, value in data.items() %}
+#     {% if key in ['domain', 'ascii_domain'] and value %}
+#         <li><strong>{{ key|capitalize }}</strong>: <a href="https://dnschecker.org/all-dns-records-of-domain.php?query={{ value }}&rtype=ALL&dns=google" target="_blank" title="See DNS record for domain">{{ value }}</a></li>
+#     {% elif key in ['mx'] and value %}
+#         <li><strong>{{ key|capitalize }}</strong>:
+#             <ul>
+#                 {% for mx_record in value %}
+#                     <li><strong>Priority:</strong> {{ mx_record[0] }}, <strong>Server:</strong> {{ mx_record[1] }}</li>
+#                 {% endfor %}
+#             </ul>
+#         </li>
+#     {% elif key == 'valid' %}
+#         <li><strong>{{ key|capitalize }}</strong>: <span style="font-weight: bold; color: {{ 'green' if value else 'red' }}">{{ value }}</span></li>
+#     {% else %}
+#         <li><strong>{{ key|capitalize }}</strong>: {{ value }}</li>
+#     {% endif %}
+# {% endfor %}
+# </ul>
+# <!--- End Return HTML for email validation --->
+# """
