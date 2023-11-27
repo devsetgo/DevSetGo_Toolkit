@@ -227,20 +227,17 @@ class DatabaseOperations:
             logger.error(f"Exception occurred during record insertion: {ex}")
             return {"error": "General Exception", "details": str(ex)}
 
-    async def insert_many(self, records: List[dict]):
+    async def insert_many(self, records):
         """
         Adds multiple records to the database.
 
-        This method takes a list of records, adds each record to the database session, and commits the session. If the operation is successful, it returns the list of records. If an error occurs during the operation, it raises a DatabaseOperationException with detailed information about the error.
+        This method takes a list of dictionaries representing records, adds them all to the database session, and commits the session. If the operation is successful, it returns the inserted records. If an error occurs during the operation, it logs the error and returns a dictionary containing the error details.
 
         Parameters:
-        records (List[dict]): The list of records to add to the database. Each record is a dictionary representing a row to be inserted into the database.
+        records (list[dict]): The records to add to the database, each represented as a dictionary where the keys are the column names and the values are the corresponding column values.
 
         Returns:
-        List[dict]: The list of records that were added to the database.
-
-        Raises:
-        DatabaseOperationException: If an error occurs during the database operation.
+        list[dict] or dict: The records that were added to the database if the operation is successful, otherwise a dictionary containing the error details.
         """
         logger.debug("Starting insert_many operation")
         try:
