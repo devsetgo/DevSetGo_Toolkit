@@ -19,6 +19,11 @@ from .database.database_config import DBConfig
 # Import the DatabaseOperations class from the database_operations module
 from .database.database_operations import DatabaseOperations
 
+# Import the create_health_router function as system_health_endpoints from the system_health_endpoints module
+from .endpoints.system_health_endpoints import (
+    create_health_router as system_health_endpoints,
+)
+
 # Import various HTTP code related entities from the http_codes module
 from .http_codes import (
     ALL_HTTP_CODES,
@@ -29,9 +34,4 @@ from .http_codes import (
     PUT_CODES,
     common_codes,
     generate_code_dict,
-)
-
-# Import the create_health_router function as system_health_endpoints from the system_health_endpoints module
-from .endpoints.system_health_endpoints import (
-    create_health_router as system_health_endpoints,
 )
