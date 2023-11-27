@@ -261,6 +261,25 @@ class TestDatabaseOperations:
         }
 
     @pytest.mark.asyncio
+    async def test_update_one_integrity_error(self, db_ops, mocker):
+        # Mock the get_db_session method to raise an IntegrityError
+        mocker.patch.object(
+            db_ops.async_db,
+            "get_db_session",
+            side_effect=IntegrityError(None, None, "Test error message"),
+        )
+
+        # Check that update_one returns an error dictionary
+        updated_user = {"name": "John12345", "id": "bob"}
+        result = await db_ops.update_one(
+            table=User, record_id=1, new_values=updated_user
+        )
+        assert result == {
+            "error": "IntegrityError",
+            "details": "(builtins.str) Test error message\n(Background on this error at: https://sqlalche.me/e/20/gkpj)",
+        }
+
+    @pytest.mark.asyncio
     async def test_update_one_sqlalchemy_error(self, db_ops, mocker):
         # Mock the get_db_session method to raise an SQLAlchemyError
         mocker.patch.object(
