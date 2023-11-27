@@ -46,7 +46,6 @@ from devsetgo_toolkit.logger import logger
 # Store the start time of the application
 app_start_time = time.time()
 
-# TODO: Create method to enable/disable endpoints from main application.
 # TODO: determine method to shutdown/restart python application
 
 status_response = generate_code_dict([400, 405, 500], description_only=False)
