@@ -118,35 +118,37 @@ class DatabaseOperations:
         """
         Executes a fetch query and returns the result.
 
-        This method takes a SQL query, executes it against the database to fetch the matching records, and returns the records. It also supports pagination through the limit and offset parameters.
+        This method takes a SQLAlchemy query, a limit, and an offset as input, executes the query against the database to fetch the matching records, and returns the records. It supports pagination through the limit and offset parameters. If an error occurs during the operation, it logs the error and returns a dictionary containing the error details.
 
         Parameters:
-        query (str): The SQL query to execute.
+        query (sqlalchemy.sql.selectable.Select): The SQLAlchemy query to execute.
         limit (int, optional): The maximum number of records to return. Defaults to 500.
         offset (int, optional): The number of records to skip before starting to fetch the records. Defaults to 0.
 
         Returns:
-        list: The list of matching records.
+        list or dict: The list of matching records if the operation is successful, otherwise a dictionary containing the error details.
         """
         logger.debug("Starting get_query operation")
         try:
             async with self.async_db.get_db_session() as session:
                 # Execute the fetch query with the given limit and offset
-                logger.debug(f"Fetch Query: {query}")
+                logger.debug(
+                    f"Executing fetch query: {query} with limit: {limit} and offset: {offset}"
+                )
                 result = await session.execute(query.limit(limit).offset(offset))
-                data = result.scalars().all()
-                logger.info(f"Fetch Result: {data}")
-                return data
+                records = result.scalars().all()
+                logger.info(f"Fetch query executed successfully. Records: {records}")
+                return records
         except SQLAlchemyError as ex:
-            # Handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError on fetch query: {ex}")
+            # Log and handle SQLAlchemyError
+            logger.error(f"SQLAlchemyError occurred during fetch query execution: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             return {"error": "SQLAlchemyError", "details": error_only}
-
         except Exception as ex:
-            # Handle general exceptions
-            logger.error(f"Exception occurred during get query: {ex}")
-            return {"error": "General Exception", "details": str(ex)}
+            # Log and handle general exceptions
+            logger.error(f"Exception occurred during fetch query execution: {ex}")
+            error_only = str(ex).split("[SQL:")[0]
+            return {"error": "General Exception", "details": error_only}
 
     async def get_queries(self, queries: Dict[str, str], limit=500, offset=0):
         """
