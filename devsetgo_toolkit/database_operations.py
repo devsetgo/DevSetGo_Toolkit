@@ -1,112 +1,116 @@
 # -*- coding: utf-8 -*-
 
 """
+This Python module, database_operations.py, provides a class DatabaseOperations for managing asynchronous database operations using SQLAlchemy.
+
+The DatabaseOperations class provides methods for executing various types of database operations, including count queries, fetch queries, record insertions, updates, and deletions. It uses an instance of the AsyncDatabase class to perform these operations asynchronously.
+
+The module imports necessary modules and packages from sqlalchemy for database operations and error handling. It also imports AsyncDatabase from the local module async_database.
+
+The DatabaseOperations class has the following methods:
+
+__init__: Initializes a new instance of the DatabaseOperations class.
+count_query: Executes a count query and returns the result.
+get_query: Executes a fetch query and returns the result.
+get_queries: Executes multiple fetch queries and returns the results.
+insert_one: Adds a single record to the database.
+insert_many: Adds multiple records to the database.
+update_one: Updates a single record in the database.
+delete_one: Deletes a single record from the database.
+Each method is designed to handle exceptions and log errors and information messages using the logging module.
+
+This module is designed to be used in an asynchronous context and requires Python 3.7+.
 """
 
-import logging as logger
+import logging as logger  # Importing logging module for logging
 import time  # Importing time module to work with times
-from contextlib import (  # Importing asynccontextmanager from contextlib for creating context managers
-    asynccontextmanager,
-)
-from typing import Dict, List  # Importing Dict and List from typing for type hinting
 
-from sqlalchemy import (  # Importing MetaData and func from sqlalchemy for database operations
-    MetaData,
-    func,
-)
-from sqlalchemy.exc import (  # Importing specific exceptions from sqlalchemy for error handling
-    IntegrityError,
-    SQLAlchemyError,
-)
-from sqlalchemy.ext.asyncio import (  # Importing AsyncSession and create_async_engine from sqlalchemy for asynchronous database operations
-    AsyncSession,
-    create_async_engine,
-)
-from sqlalchemy.future import (  # Importing select from sqlalchemy for making select queries
-    select,
-)
-from sqlalchemy.orm import (  # Importing declarative_base and sessionmaker from sqlalchemy for ORM operations
-    declarative_base,
-    sessionmaker,
-)
+# Importing asynccontextmanager from contextlib for creating context managers
 
+# Importing Dict and List from typing for type hinting
+from typing import Dict, List
+
+# Importing MetaData and func from sqlalchemy for database operations
+from sqlalchemy import func
+
+# Importing specific exceptions from sqlalchemy for error handling
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+
+# Importing AsyncSession and create_async_engine from sqlalchemy for asynchronous database operations
+
+# Importing select from sqlalchemy for making select queries
+from sqlalchemy.future import select
+
+# Importing declarative_base and sessionmaker from sqlalchemy for ORM operations
+
+# Importing AsyncDatabase class from local module async_database
 from .async_database import AsyncDatabase
 
 
 class DatabaseOperations:
     """
-    A class used to manage the database operations in an asynchronous manner.
+        The DatabaseOperations class provides methods for executing various types of database operations asynchronously using SQLAlchemy.
 
-    This class provides methods for executing various types of database operations, including count queries, fetch queries, record insertions, updates, and deletions. It uses an instance of the AsyncDatabase class to perform these operations asynchronously.
+    This class is initialized with an instance of the AsyncDatabase class, which is used for performing the actual database operations.
 
-    Attributes
-    ----------
-    async_db : AsyncDatabase
-        An instance of AsyncDatabase class for performing asynchronous database operations.
+    The class provides the following methods:
 
-    Methods
-    -------
-    count_query(query):
-        Executes a count query and returns the result.
-    get_query(query, limit=500, offset=0):
-        Executes a fetch query and returns the result.
-    get_queries(queries: dict, limit=500, offset=0):
-        Executes multiple fetch queries and returns the results.
-    insert_one(record):
-        Adds a single record to the database.
-    insert_many(records: List):
-        Adds multiple records to the database.
-    update_one(table, record_id: str, new_values: dict):
-        Updates a single record in the database.
-    delete_one(table, record_id):
-        Deletes a single record from the database.
+    __init__: Initializes a new instance of the DatabaseOperations class.
+    count_query: Executes a count query and returns the result.
+    get_query: Executes a fetch query and returns the result.
+    get_queries: Executes multiple fetch queries and returns the results.
+    insert_one: Adds a single record to the database.
+    insert_many: Adds multiple records to the database.
+    update_one: Updates a single record in the database.
+    delete_one: Deletes a single record from the database.
+    Each method is designed to handle exceptions and log errors and information messages using the logging module.
+
+    This class is designed to be used in an asynchronous context and requires Python 3.7+.
     """
 
     def __init__(self, async_db: AsyncDatabase):
         """
         Initializes a new instance of the DatabaseOperations class.
 
-        This method sets up the DatabaseOperations instance with an AsyncDatabase instance, which is used for performing asynchronous database operations.
+        This method takes an instance of the AsyncDatabase class as input and stores it in the async_db attribute for later use in other methods.
 
         Parameters:
-        async_db (AsyncDatabase): An instance of AsyncDatabase class for performing asynchronous database operations.
-
-        Returns: None
+        async_db (AsyncDatabase): An instance of the AsyncDatabase class for performing asynchronous database operations.
         """
-        # Set the async_db attribute with the provided AsyncDatabase instance
+        # Store the AsyncDatabase instance in the async_db attribute
+        logger.debug("Initializing DatabaseOperations instance")
         self.async_db = async_db
-        # Log the initialization of the DatabaseOperations instance
-        logger.info("DatabaseOperations initialized")
+        logger.info("DatabaseOperations instance initialized successfully")
 
     async def count_query(self, query):
         """
         Executes a count query and returns the result.
 
-        This method takes a query, executes it against the database to count the number of matching records, and returns the count.
+        This method takes a SQLAlchemy query as input, executes it against the database to count the number of matching records, and returns the count. If an error occurs during the operation, it logs the error and returns a dictionary containing the error details.
 
         Parameters:
-        query (str): The SQL query to execute.
+        query (sqlalchemy.sql.selectable.Select): The SQLAlchemy query to execute.
 
         Returns:
-        int: The count of matching records.
+        int or dict: The count of matching records if the operation is successful, otherwise a dictionary containing the error details.
         """
         logger.debug("Starting count_query operation")
         try:
             async with self.async_db.get_db_session() as session:
                 # Execute the count query
-                logger.debug(f"Count Query: {query}")
+                logger.debug(f"Executing count query: {query}")
                 result = await session.execute(select(func.count()).select_from(query))
                 count = result.scalar()
-                logger.info(f"Count Result: {count}")
+                logger.info(f"Count query executed successfully. Result: {count}")
                 return count
         except SQLAlchemyError as ex:
-            # Handle SQLAlchemyError
-            logger.error(f"SQLAlchemyError on count query: {ex}")
+            # Log and handle SQLAlchemyError
+            logger.error(f"SQLAlchemyError occurred during count query execution: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             return {"error": "SQLAlchemyError", "details": error_only}
         except Exception as ex:
-            # Handle general exceptions
-            logger.error(f"Exception Failed to perform count query: {ex}")
+            # Log and handle general exceptions
+            logger.error(f"Exception occurred during count query execution: {ex}")
             error_only = str(ex).split("[SQL:")[0]
             return {"error": "General Exception", "details": error_only}
 

@@ -6,11 +6,7 @@ import pytest
 from sqlalchemy import Column, Integer, String, select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from devsetgo_toolkit import (
-    AsyncDatabase,
-    DatabaseOperations,
-    DBConfig,
-)
+from devsetgo_toolkit import AsyncDatabase, DatabaseOperations, DBConfig
 
 config = {
     "database_uri": "sqlite+aiosqlite:///:memory:?cache=shared",
