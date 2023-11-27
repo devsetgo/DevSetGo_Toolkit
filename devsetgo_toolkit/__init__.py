@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 
 """
-This is the initialization file for our library. It imports the necessary modules and functions
-from various files in the library, making them accessible as package-level entities.
+This is the initialization file for our library. It imports the necessary classes and functions
+from various modules within the library, making them accessible at the package level.
 This allows users to import these entities directly from the package, rather than having to
-navigate to the specific file where they are defined.
+import them from their specific modules.
 """
 
-# Importing the AsyncDatabase class from the async_database file
+# Import the AsyncDatabase class from the async_database module
 from .async_database import AsyncDatabase
 
-# Importing the SchemaBase class from the base_schema file
+# Import the SchemaBase class from the base_schema module
 from .base_schema import SchemaBase
 
-# Importing the DBConfig class from the database_config file
+# Import the DBConfig class from the database_config module
 from .database_config import DBConfig
 
-# Importing the DatabaseOperationException and DatabaseOperations classes from the database_operations file
-from .database_operations import DatabaseOperationException, DatabaseOperations
+# Import the DatabaseOperations class from the database_operations module
+from .database_operations import DatabaseOperations
 
-# Importing various HTTP code related entities from the http_codes file
+# Import various HTTP code related entities from the http_codes module
 from .http_codes import (
     ALL_HTTP_CODES,
     DELETE_CODES,
@@ -31,5 +31,5 @@ from .http_codes import (
     generate_code_dict,
 )
 
-# Importing the create_health_router function as system_health_endpoints from the system_health_endpoints file
+# Import the create_health_router function as system_health_endpoints from the system_health_endpoints module
 from .system_health_endpoints import create_health_router as system_health_endpoints

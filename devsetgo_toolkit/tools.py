@@ -184,26 +184,59 @@
 # @router.post(
 #     "/email-validation", response_class=ORJSONResponse, status_code=status.HTTP_200_OK
 # )
-# async def check_email(email_verification: EmailVerification):
-#     logging.info("Received request for email validation")
-
+# async def check_email(
+#     # email_address: str = Query(...),
+#     # check_deliverability: bool = Query(True),
+#     # test_environment: bool = Query(False),
+#     email_verification: EmailVerification,
+# ):
 #     t0 = time.time()
-
-#     if not email_verification.email_address:
-#         raise HTTPException(status_code=400, detail="Email address is required")
-
 #     try:
-#         logging.debug("Validating email: %s", email_verification.email_address)
-
-#         email_data = validate_email(
-#             email_verification.email_address,
+#         email_data = await validate_email_address(
+#             email_address=email_verification.email_address,
 #             check_deliverability=email_verification.check_deliverability,
 #             test_environment=email_verification.test_environment,
 #         )
+
 #         t1 = time.time() - t0
 
-#         logging.debug("Validation completed in %f seconds", t1)
+#         if "error" in email_data:
+#             return email_data
+#         else:
+#             email_data["duration_seconds"] = round(t1, 4)
+#             data = email_data
 
+#         logger.debug(f"email validation data: {data} {t1:.4f}")
+#         # Log a success message
+#         logger.info(
+#             f"Email validation succeeded for: {email_verification.email_address}"
+#         )
+
+#         return data
+
+#     except Exception as e:
+#         t1 = time.time() - t0
+#         # Log an error message for other exceptions
+#         logger.error(
+#             f"Error processing email address: {email_verification.email_address}, error: {str(e)}"
+#         )
+
+#         raise HTTPException(status_code=500, detail=str(e))
+
+# async def validate_email_address(
+#     email_address: str,
+#     check_deliverability: bool = True,
+#     test_environment: bool = False,
+# ):
+#     if not email_address:
+#         raise HTTPException(status_code=400, detail="Email address is required")
+
+#     try:
+#         email_data = validate_email(
+#             email_address,
+#             check_deliverability=check_deliverability,
+#             test_environment=test_environment,
+#         )
 #         data = {
 #             "normalized": email_data.normalized,
 #             "valid": True,
@@ -213,28 +246,17 @@
 #             "ascii_local_part": email_data.ascii_local_part,
 #             "ascii_domain": email_data.ascii_domain,
 #             "smtputf8": email_data.smtputf8,
-#             "mx": None
-#             if not email_verification.check_deliverability
-#             else email_data.mx,
+#             "mx": None if not check_deliverability else email_data.mx,
 #             "mx_fallback_type": None
-#             if not email_verification.check_deliverability
+#             if not check_deliverability
 #             else email_data.mx_fallback_type,
-#             "duration": round(t1, 4),
 #         }
-
 #         return data
+#     except EmailUndeliverableError as ex:
+#         return {"email_address": email_address, "valid": False, "error": f"EmailUndeliverableError '{str(ex)}'"}
+
 #     except EmailNotValidError as ex:
-#         t1 = time.time() - t0
-#         logging.error("Email validation failed: %s", str(ex))
-#         raise HTTPException(
-#             status_code=400,
-#             detail={
-#                 "email_address": email_verification.email_address,
-#                 "valid": False,
-#                 "error": str(ex),
-#                 "duration": round(t1, 4),
-#             },
-#         )
-#     except Exception as e:
-#         logging.critical("Unexpected error occurred: %s", str(e))
-#         raise HTTPException(status_code=500, detail=str(e))
+#         return {"email_address": email_address, "valid": False, "error": f"EmailNotValidError '{str(ex)}'"}
+
+#     except Exception as ex:
+#         return {"email_address": email_address, "valid": False, "error": f"An Exception for '{str(ex)}' has occured. This could be due to no value is set on the domain."}
