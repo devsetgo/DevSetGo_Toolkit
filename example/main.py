@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import logging
 import random
 import secrets
@@ -25,7 +24,8 @@ from devsetgo_toolkit import (
     DBConfig,
     SchemaBase,
     generate_code_dict,
-    system_health_endpoints,
+    # system_health_endpoints,
+    # system_tools_endpoints
 )
 
 # logging.basicConfig()
@@ -44,7 +44,7 @@ config_log(
 )
 
 
-async def create_a_bunch_of_Users(single_entry=0, many_entries=0):
+async def create_a_bunch_of_users(single_entry=0, many_entries=0):
     logger.info(f"single_entry: {single_entry}")
     await async_db.create_tables()
     # Create a list to hold the user data
@@ -88,7 +88,7 @@ async def lifespan(app: FastAPI):
 
     create_users = True
     if create_users:
-        await create_a_bunch_of_Users(single_entry=23, many_entries=2000)
+        await create_a_bunch_of_users(single_entry=23, many_entries=2000)
     yield
 
     tracemalloc.stop()
@@ -386,15 +386,27 @@ async def create_users(user_list: UserList):
     return created_users
 
 
-from devsetgo_toolkit import system_health_endpoints
-
-# User configuration
-config = {
-    # "enable_status_endpoint": False, # on by default
-    # "enable_uptime_endpoint": False, # on by default
+# Endpoint configuration
+config_health = {
+    "enable_status_endpoint": True,  # on by default
+    "enable_uptime_endpoint": True,  # on by default
     "enable_heapdump_endpoint": True,  # off by default
 }
 
-# Health router
-health_router = system_health_endpoints(config)
+from devsetgo_toolkit.endpoints.system_health_endpoints import (
+    create_health_router,
+)  # , system_tools_endpoints
+
+# # Health router
+health_router = create_health_router(config=config_health)
 app.include_router(health_router, prefix="/api/health", tags=["system-health"])
+
+
+from devsetgo_toolkit import system_tools_endpoints
+
+config_tools = {
+    "enable_email-validation": True,
+}
+
+tool_router = system_tools_endpoints(config=config_tools)
+app.include_router(tool_router, prefix="/tools", tags=["tools"])

@@ -126,7 +126,7 @@ def create_health_router(config: dict):
                 }
             }
 
-    if config.get("enable_heapdump_endpoint", False):
+    if config.get("enable_heapdump_endpoint", True):
 
         @router.get(
             "/heapdump", response_class=ORJSONResponse, responses=status_response

@@ -56,7 +56,7 @@ run-example: ## Run the example application
 	uvicorn example.main:app --port ${PORT} --workers ${WORKER} --log-level $(LOG_LEVEL)
 
 run-example-dev: ## Run the example application with hot reloading
-	uvicorn example.main:app --port ${PORT} --reload
+	uvicorn example.main:app --port ${PORT} --reload  --log-level $(LOG_LEVEL)
 
 speedtest: ## Run a speed test
 	if [ ! -f example/http_request.so ]; then gcc -shared -o example/http_request.so example/http_request.c -lcurl -fPIC; fi
