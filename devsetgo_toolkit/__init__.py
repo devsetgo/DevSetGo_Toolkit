@@ -35,4 +35,6 @@ from .endpoints.http_codes import (
 from .endpoints.system_health_endpoints import (
     create_health_router as system_health_endpoints,
 )
-from .endpoints.system_tools_endpoints import create_tool_router as system_tools_endpoints
+from .endpoints.system_tools_endpoints import (
+    create_tool_router as system_tools_endpoints,
+)
