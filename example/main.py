@@ -28,7 +28,7 @@ from devsetgo_toolkit import (
     system_health_endpoints,
 )
 
-logging.basicConfig()
+# logging.basicConfig()
 # logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
 
 
@@ -59,7 +59,7 @@ async def create_a_bunch_of_Users(single_entry=0, many_entries=0):
             email=f"user{value}@example.com",
         )
         logger.info(f"created_users: {user}")
-        await db_ops.insert_one(user)
+        await db_ops.create_one(user)
 
     users = []
     # Create a loop to generate user data
@@ -71,10 +71,11 @@ async def create_a_bunch_of_Users(single_entry=0, many_entries=0):
             last_name=f"Last{value_one}{i}{value_two}",
             email=f"user{value_one}{i}{value_two}@example.com",
         )
+        logger.info(f"created_users: {user.first_name}")
         users.append(user)
 
     # Use db_ops to add the users to the database
-    await db_ops.insert_many(users)
+    await db_ops.create_many(users)
 
 
 @asynccontextmanager
@@ -87,7 +88,7 @@ async def lifespan(app: FastAPI):
 
     create_users = True
     if create_users:
-        await create_a_bunch_of_Users(single_entry=0, many_entries=500)
+        await create_a_bunch_of_Users(single_entry=23, many_entries=2000)
     yield
 
     tracemalloc.stop()
@@ -245,7 +246,7 @@ async def read_users(
     # Create a SELECT query for the User table
     query = Select(User)
     # Execute the SELECT query to get the users, with the provided limit and offset
-    users = await db_ops.get_query(query=query, limit=limit, offset=offset)
+    users = await db_ops.read_query(query=query, limit=limit, offset=offset)
     # Calculate the current count
     current_count = len(users)
     # Return the total number of users, the number of users returned, and the users themselves
@@ -284,7 +285,7 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
         db_users.append(db_user)
 
     # Insert the new users into the database
-    created_users = await db_ops.insert_many(db_users)
+    created_users = await db_ops.create_many(db_users)
 
     # Log the number of created users
     logger.info(f"created_users: {len(created_users)}")
@@ -296,7 +297,7 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
 @app.get("/users/{user_id}", tags=["users"], response_model=UserResponse)
 async def read_user(user_id: str):
     # Execute a SELECT query to get the user with the specified ID
-    users = await db_ops.get_query(Select(User).where(User.id == user_id))
+    users = await db_ops.read_query(Select(User).where(User.id == user_id))
     # If no users were found, raise a 404 error
     if not users:
         logger.info(f"user not found: {user_id}")
@@ -359,7 +360,7 @@ async def create_user(user: UserBase):
         first_name=user.first_name, last_name=user.last_name, email=user.email
     )
     # Insert the new user into the database
-    created_user = await db_ops.insert_one(db_user)
+    created_user = await db_ops.create_one(db_user)
     # Return the created user
     return created_user
 
@@ -378,7 +379,7 @@ async def create_users(user_list: UserList):
         for user in user_list.users
     ]
     # Insert the new users into the database
-    created_users = await db_ops.insert_many(db_users)
+    created_users = await db_ops.create_many(db_users)
     # Log the created users
     logger.info(f"created_users: {created_users}")
     # Return the created users
@@ -393,7 +394,6 @@ config = {
     # "enable_uptime_endpoint": False, # on by default
     "enable_heapdump_endpoint": True,  # off by default
 }
-
 
 # Health router
 health_router = system_health_endpoints(config)

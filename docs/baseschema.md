@@ -138,7 +138,7 @@ async def read_users(
     query_count = Select(User)
     total_count = await db_ops.count_query(query=query_count)
     query = Select(User)
-    users = await db_ops.get_query(query=query, limit=limit, offset=offset)
+    users = await db_ops.read_query(query=query, limit=limit, offset=offset)
     return {
         "query_data": {"total_count": total_count, "count": len(users)},
         "users": users,
@@ -150,7 +150,7 @@ async def create_user(user: UserBase):
     db_user = User(
         name_first=user.name_first, name_last=user.name_last, email=user.email
     )
-    created_user = await db_ops.insert_one(db_user)
+    created_user = await db_ops.create_one(db_user)
     return created_user
 
 
@@ -164,7 +164,7 @@ async def create_users(user_list: UserList):
         User(name_first=user.name_first, name_last=user.name_last, email=user.email)
         for user in user_list.users
     ]
-    created_users = await db_ops.insert_many(db_users)
+    created_users = await db_ops.create_many(db_users)
     return created_users
 
 
@@ -191,7 +191,7 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
         email = f"user{random_email_part}@yahoo.com"
 
         db_user = User(name_first=name_first, name_last=name_last, email=email)
-        created_user = await db_ops.insert_one(db_user)
+        created_user = await db_ops.create_one(db_user)
         created_users.append(created_user)
 
     return created_users
@@ -199,7 +199,7 @@ async def create_users_auto(qty: int = Query(100, le=1000, ge=1)):
 
 @app.get("/users/{userid}", response_model=UserResponse)
 async def read_user(userid: str):
-    users = await db_ops.get_query(Select(User).where(User.id == userid))
+    users = await db_ops.read_query(Select(User).where(User.id == userid))
     if not users:
         raise HTTPException(status_code=404, detail="User not found")
     return users[0]
