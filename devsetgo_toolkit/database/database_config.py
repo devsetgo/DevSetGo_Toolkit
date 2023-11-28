@@ -23,8 +23,6 @@ The SUPPORTED_PARAMETERS constant in the DBConfig class is a dictionary that spe
 The module is designed to be flexible and can be extended to support additional database types and operations.
 """
 
-# import logging as logger
-from ..logger import logger
 import time  # Importing time module to work with times
 from contextlib import (  # Importing asynccontextmanager from contextlib for creating context managers
     asynccontextmanager,
@@ -51,10 +49,8 @@ from sqlalchemy.orm import (  # Importing declarative_base and sessionmaker from
     sessionmaker,
 )
 
-# from devsetgo_toolkit.logger import (  # Importing logger from devsetgo_toolkit for logging
-#     logger,
-# )
-
+# import logging as logger
+from ..logger import logger
 
 Base = declarative_base()  # Creating a base class for declarative database models
 
@@ -129,10 +125,12 @@ class DBConfig:
             set(config.keys()) - supported_parameters - {"database_uri"}
         )
         if unsupported_parameters:
-            error_message = f"Unsupported parameters for {engine_type}: {unsupported_parameters}"
+            error_message = (
+                f"Unsupported parameters for {engine_type}: {unsupported_parameters}"
+            )
             logger.error(error_message)
             raise Exception(error_message)
-            
+
         engine_parameters = {
             param: self.config.get(param)
             for param in supported_parameters

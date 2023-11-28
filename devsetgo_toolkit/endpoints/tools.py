@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # import json
-# import logging
+# from ..logger import logger
 # import time
 
 # from email_validator import EmailNotValidError

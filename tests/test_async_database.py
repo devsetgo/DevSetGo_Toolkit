@@ -240,7 +240,8 @@ class TestDatabaseOperations:
     @pytest.mark.asyncio
     async def test_update_one(self, db_ops):
         # db_ops is already awaited by pytest, so you can use it directly
-        user = User(name="Mike12345")
+        name = f"Mike{secrets.randbelow(1000)}"
+        user = User(name=name)
         user_record = await db_ops.insert_one(user)
         updated_user = {"name": "John12345", "id": "bob"}
         result = await db_ops.update_one(

@@ -29,10 +29,6 @@ app.include_router(health_router, prefix="/api/health", tags=["system-health"])
 ```
 """
 
-# Importing database connector module
-# from devsetgo_toolkit.logger import logger
-import logging as logger
-
 # Import necessary modules
 import time
 import tracemalloc
@@ -41,6 +37,9 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import ORJSONResponse
 
 from devsetgo_toolkit.endpoints.http_codes import generate_code_dict
+
+# Importing database connector module
+from ..logger import logger
 
 # import logging as logger
 
