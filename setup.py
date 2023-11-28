@@ -39,5 +39,10 @@ setup(
     python_requires=">=3.9",
     packages=["devsetgo_toolkit"],
     include_package_data=True,
-    install_requires=["sqlalchemy>=2.0.0,<2.0.99", "loguru>=0.5.3,<0.5.99"],
+    install_requires=[
+        "sqlalchemy>=2.0.0,<2.0.99",
+        "pydantic>=2.4.0,<2.9.99",
+        "email-validator>=2.0.0,<2.2.0",
+        "fastapi>=0.100.0<0.110",
+    ],
 )
