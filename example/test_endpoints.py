@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 async def get_users():
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://localhost:5000/users?limit=10")
+        response = await client.get("http://localhost:5000/users?limit=500")
         return response.json()
 
 

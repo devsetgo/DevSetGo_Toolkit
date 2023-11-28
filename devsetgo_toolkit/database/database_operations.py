@@ -11,10 +11,10 @@ The DatabaseOperations class has the following methods:
 
 __init__: Initializes a new instance of the DatabaseOperations class.
 count_query: Executes a count query and returns the result.
-get_query: Executes a fetch query and returns the result.
-get_queries: Executes multiple fetch queries and returns the results.
-insert_one: Adds a single record to the database.
-insert_many: Adds multiple records to the database.
+read_query: Executes a fetch query and returns the result.
+read_multi_query: Executes multiple fetch queries and returns the results.
+create_one: Adds a single record to the database.
+create_many: Adds multiple records to the database.
 update_one: Updates a single record in the database.
 delete_one: Deletes a single record from the database.
 Each method is designed to handle exceptions and log errors and information messages using the logging module.
@@ -23,22 +23,18 @@ This module is designed to be used in an asynchronous context and requires Pytho
 """
 
 import time  # Importing time module to work with times
-
 # Importing Dict and List from typing for type hinting
 from typing import Dict
 
 # Importing MetaData and func from sqlalchemy for database operations
 from sqlalchemy import func
-
 # Importing specific exceptions from sqlalchemy for error handling
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
 # Importing select from sqlalchemy for making select queries
 from sqlalchemy.future import select
 
 # import logging as logger  # Importing logging module for logging
 from ..logger import logger
-
 # Importing AsyncDatabase class from local module async_database
 from .async_database import AsyncDatabase
 
@@ -76,10 +72,10 @@ class DatabaseOperations:
 
     __init__: Initializes a new instance of the DatabaseOperations class.
     count_query: Executes a count query and returns the result.
-    get_query: Executes a fetch query and returns the result.
-    get_queries: Executes multiple fetch queries and returns the results.
-    insert_one: Adds a single record to the database.
-    insert_many: Adds multiple records to the database.
+    read_query: Executes a fetch query and returns the result.
+    read_multi_query: Executes multiple fetch queries and returns the results.
+    create_one: Adds a single record to the database.
+    create_many: Adds multiple records to the database.
     update_one: Updates a single record in the database.
     delete_one: Deletes a single record from the database.
     Each method is designed to handle exceptions and log errors and information messages using the logging module.
@@ -100,6 +96,74 @@ class DatabaseOperations:
         logger.debug("Initializing DatabaseOperations instance")
         self.async_db = async_db
         logger.info("DatabaseOperations instance initialized successfully")
+
+    async def create_one(self, record):
+        """
+        Adds a single record to the database.
+
+        This method takes a dictionary representing a record, adds it to the database session, and commits the session. If the operation is successful, it returns the inserted record. If an error occurs during the operation, it raises a DatabaseOperationException.
+
+        Parameters:
+        record (dict): The record to add to the database, represented as a dictionary where the keys are the column names and the values are the corresponding column values.
+
+        Returns:
+        dict: The record that was added to the database.
+
+        Raises:
+        DatabaseOperationException: If an error occurs during the database operation.
+        """
+        logger.debug("Starting create_one operation")
+        try:
+            async with self.async_db.get_db_session() as session:
+                # Add the record to the session and commit
+                logger.debug(f"Adding record to session: {record.__dict__}")
+                session.add(record)
+                await session.commit()
+                logger.info(f"Record added successfully: {record.id}")
+                return record
+        # Catch any exception that occurs during the operation
+        except Exception as ex:
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
+
+    async def create_many(self, records):
+        """
+        Adds multiple records to the database.
+
+        This method takes a list of dictionaries representing records, adds them all to the database session, and commits the session. If the operation is successful, it returns the inserted records. If an error occurs during the operation, it logs the error and returns a dictionary containing the error details.
+
+        Parameters:
+        records (list[dict]): The records to add to the database, each represented as a dictionary where the keys are the column names and the values are the corresponding column values.
+
+        Returns:
+        list[dict] or dict: The records that were added to the database if the operation is successful, otherwise a dictionary containing the error details.
+        """
+        logger.debug("Starting create_many operation")
+        try:
+            t0 = time.time()  # Record the start time of the operation
+            async with self.async_db.get_db_session() as session:
+                # Add all the records to the session and commit
+                logger.debug(f"Adding {len(records)} records to session")
+                session.add_all(records)  # Add all records to the session
+                await session.commit()  # Commit the session to save the records to the database
+                # Convert each record to a dictionary and log it
+                records_data = [record.__dict__ for record in records]
+                logger.debug(f"Records added to session: {records_data}")
+
+                num_records = len(records)  # Get the number of records added
+                t1 = time.time() - t0  # Calculate the time taken for the operation
+                logger.info(
+                    f"Record operations were successful. {num_records} records were created in {t1:.4f} seconds."
+                )
+                return records  # Return the list of records added
+        # Catch any exception that occurs during the operation
+        except Exception as ex:
+            # Call the handle_exceptions function to handle the exception.
+            # This function checks the type of the exception and returns an appropriate error dictionary.
+            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
+            return handle_exceptions(ex)
 
     async def count_query(self, query):
         """
@@ -129,7 +193,7 @@ class DatabaseOperations:
             # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
             return handle_exceptions(ex)
 
-    async def get_query(self, query, limit=500, offset=0):
+    async def read_query(self, query, limit=500, offset=0):
         """
         Executes a fetch query and returns the result.
 
@@ -143,7 +207,7 @@ class DatabaseOperations:
         Returns:
         list or dict: The list of matching records if the operation is successful, otherwise a dictionary containing the error details.
         """
-        logger.debug("Starting get_query operation")
+        logger.debug("Starting read_query operation")
         try:
             async with self.async_db.get_db_session() as session:
                 # Execute the fetch query with the given limit and offset
@@ -167,7 +231,7 @@ class DatabaseOperations:
             # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
             return handle_exceptions(ex)
 
-    async def get_queries(self, queries: Dict[str, str], limit=500, offset=0):
+    async def read_multi_query(self, queries: Dict[str, str], limit=500, offset=0):
         """
         Executes multiple fetch queries and returns the results.
 
@@ -181,7 +245,7 @@ class DatabaseOperations:
         Returns:
         Dict[str, list]: A dictionary where the key is the query name and the value is a list of matching records.
         """
-        logger.debug("Starting get_queries operation")
+        logger.debug("Starting read_multi_query operation")
         try:
             results = {}
             async with self.async_db.get_db_session() as session:
@@ -200,74 +264,6 @@ class DatabaseOperations:
 
                     results[query_name] = data
             return results
-        # Catch any exception that occurs during the operation
-        except Exception as ex:
-            # Call the handle_exceptions function to handle the exception.
-            # This function checks the type of the exception and returns an appropriate error dictionary.
-            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
-            return handle_exceptions(ex)
-
-    async def insert_one(self, record):
-        """
-        Adds a single record to the database.
-
-        This method takes a dictionary representing a record, adds it to the database session, and commits the session. If the operation is successful, it returns the inserted record. If an error occurs during the operation, it raises a DatabaseOperationException.
-
-        Parameters:
-        record (dict): The record to add to the database, represented as a dictionary where the keys are the column names and the values are the corresponding column values.
-
-        Returns:
-        dict: The record that was added to the database.
-
-        Raises:
-        DatabaseOperationException: If an error occurs during the database operation.
-        """
-        logger.debug("Starting insert_one operation")
-        try:
-            async with self.async_db.get_db_session() as session:
-                # Add the record to the session and commit
-                logger.debug(f"Adding record to session: {record.__dict__}")
-                session.add(record)
-                await session.commit()
-                logger.info(f"Record added successfully: {record.id}")
-                return record
-        # Catch any exception that occurs during the operation
-        except Exception as ex:
-            # Call the handle_exceptions function to handle the exception.
-            # This function checks the type of the exception and returns an appropriate error dictionary.
-            # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
-            return handle_exceptions(ex)
-
-    async def insert_many(self, records):
-        """
-        Adds multiple records to the database.
-
-        This method takes a list of dictionaries representing records, adds them all to the database session, and commits the session. If the operation is successful, it returns the inserted records. If an error occurs during the operation, it logs the error and returns a dictionary containing the error details.
-
-        Parameters:
-        records (list[dict]): The records to add to the database, each represented as a dictionary where the keys are the column names and the values are the corresponding column values.
-
-        Returns:
-        list[dict] or dict: The records that were added to the database if the operation is successful, otherwise a dictionary containing the error details.
-        """
-        logger.debug("Starting insert_many operation")
-        try:
-            t0 = time.time()  # Record the start time of the operation
-            async with self.async_db.get_db_session() as session:
-                # Add all the records to the session and commit
-                logger.debug(f"Adding {len(records)} records to session")
-                session.add_all(records)  # Add all records to the session
-                await session.commit()  # Commit the session to save the records to the database
-                # Convert each record to a dictionary and log it
-                records_data = [record.__dict__ for record in records]
-                logger.debug(f"Records added to session: {records_data}")
-
-                num_records = len(records)  # Get the number of records added
-                t1 = time.time() - t0  # Calculate the time taken for the operation
-                logger.info(
-                    f"Record operations were successful. {num_records} records were created in {t1:.4f} seconds."
-                )
-                return records  # Return the list of records added
         # Catch any exception that occurs during the operation
         except Exception as ex:
             # Call the handle_exceptions function to handle the exception.
