@@ -29,7 +29,7 @@ from devsetgo_toolkit import (
 )
 
 logging.basicConfig()
-# logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+# logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
 
 
 config_log(
@@ -40,11 +40,12 @@ config_log(
     log_retention="2 days",
     log_backtrace=True,
     log_format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}",
-    log_serializer=False,
+    log_serializer=True,
 )
 
 
 async def create_a_bunch_of_Users(single_entry=0, many_entries=0):
+    logger.info(f"single_entry: {single_entry}")
     await async_db.create_tables()
     # Create a list to hold the user data
 
@@ -79,12 +80,14 @@ async def create_a_bunch_of_Users(single_entry=0, many_entries=0):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     tracemalloc.start()
+
+    logger.info("starting up")
     # Create the tables in the database
     await async_db.create_tables()
 
     create_users = True
     if create_users:
-        await create_a_bunch_of_Users(single_entry=1, many_entries=5000)
+        await create_a_bunch_of_Users(single_entry=0, many_entries=500)
     yield
 
     tracemalloc.stop()

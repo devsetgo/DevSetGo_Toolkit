@@ -22,7 +22,8 @@ Each method is designed to handle exceptions and log errors and information mess
 This module is designed to be used in an asynchronous context and requires Python 3.7+.
 """
 
-import logging as logger  # Importing logging module for logging
+# import logging as logger  # Importing logging module for logging
+from ..logger import logger
 import time  # Importing time module to work with times
 
 # Importing Dict and List from typing for type hinting
@@ -158,7 +159,11 @@ class DatabaseOperations:
                 )
                 result = await session.execute(query.limit(limit).offset(offset))
                 records = result.scalars().all()
-                logger.info(f"Fetch query executed successfully. Records: {records}")
+
+                # Convert each record to a dictionary and log it
+                records_data = [record.__dict__ for record in records]
+                logger.info(f"Fetch query executed successfully. Records: {records_data}")
+
                 return records
         # Catch any exception that occurs during the operation
         except Exception as ex:
@@ -186,12 +191,16 @@ class DatabaseOperations:
             results = {}
             async with self.async_db.get_db_session() as session:
                 # Execute each fetch query with the given limit and offset
-                logger.debug(f"Fetch Queries: {queries}")
                 for query_name, query in queries.items():
-                    logger.debug(f"Fetch Query: {query}")
+                    logger.debug(f"Executing fetch query: {query}")
                     result = await session.execute(query.limit(limit).offset(offset))
                     data = result.scalars().all()
-                    logger.info(f"Fetch Result: {data}")
+
+                    # Convert each record to a dictionary and log it
+                    data_dicts = [record.__dict__ for record in data]
+                    logger.debug(f"Fetch result for query '{query_name}': {data_dicts}")
+                    logger.info(f"Fetch query executed successfully: {query_name} with {len(data)} records")
+
                     results[query_name] = data
             return results
         # Catch any exception that occurs during the operation
@@ -200,6 +209,7 @@ class DatabaseOperations:
             # This function checks the type of the exception and returns an appropriate error dictionary.
             # This way, we can handle multiple types of exceptions in a consistent manner across different methods.
             return handle_exceptions(ex)
+
 
     async def insert_one(self, record):
         """
@@ -220,10 +230,10 @@ class DatabaseOperations:
         try:
             async with self.async_db.get_db_session() as session:
                 # Add the record to the session and commit
-                logger.debug(f"Adding record to session: {record}")
+                logger.debug(f"Adding record to session: {record.__dict__}")
                 session.add(record)
                 await session.commit()
-                logger.info(f"Record added successfully: {record}")
+                logger.info(f"Record added successfully: {record.id}")
                 return record
         # Catch any exception that occurs during the operation
         except Exception as ex:
@@ -252,6 +262,9 @@ class DatabaseOperations:
                 logger.debug(f"Adding {len(records)} records to session")
                 session.add_all(records)  # Add all records to the session
                 await session.commit()  # Commit the session to save the records to the database
+                # Convert each record to a dictionary and log it
+                records_data = [record.__dict__ for record in records]
+                logger.debug(f"Records added to session: {records_data}")
 
                 num_records = len(records)  # Get the number of records added
                 t1 = time.time() - t0  # Calculate the time taken for the operation
@@ -299,12 +312,12 @@ class DatabaseOperations:
                     }
 
                 # Update the record with new values
-                logger.debug(f"Updating record with new values: {new_values}")
+                logger.debug(f"Updating record with new values: {new_values.__dict__}")
                 for key, value in new_values.items():
                     if key not in non_updatable_fields:
                         setattr(record, key, value)
                 await session.commit()
-                logger.info(f"Record updated successfully: {record}")
+                logger.info(f"Record updated successfully: {record.id}")
                 return record
         # Catch any exception that occurs during the operation
         except Exception as ex:
@@ -347,6 +360,7 @@ class DatabaseOperations:
                 # Delete the record
                 logger.debug(f"Deleting record with id: {record_id}")
                 await session.delete(record)
+                logger.debug(f"Record deleted from session: {record.__dict__}")
 
                 # Commit the changes
                 logger.debug(

@@ -22,7 +22,8 @@ This module uses the logger from the devsetgo_toolkit for logging.
 
 # Importing necessary modules and functions
 
-import logging as logger
+# import logging as logger
+from ..logger import logger
 
 from sqlalchemy.orm import declarative_base
 

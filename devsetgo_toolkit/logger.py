@@ -1,38 +1,41 @@
 # -*- coding: utf-8 -*-
-"""
-This module sets up a logger named "Devsetgo Toolkit" with a level of DEBUG.
-It also sets up a StreamHandler that outputs to the console, with a level of DEBUG.
-The StreamHandler uses a Formatter to format the log messages.
-
-use:
-from devsetgo_toolkit.logger import logger
-
-logger.info("This is an info message")
-logger.debug("This is a debug message")
-logger.warning("This is a warning message")
-logger.error("This is an error message")
-logger.critical("This is a critical message")
-logger.exception("This is an exception message")
-
-"""
-
 import logging
+import sys
 
-# TODO: Need to use app that is import libray to set the logger
-# Get a logger named "Devsetgo Toolkit"
-logger = logging.getLogger("Devsetgo Toolkit")
-# Set the log level of the logger to DEBUG
-logger.setLevel(logging.DEBUG)
+# Get a logger named after the module where this is called
+logger = logging.getLogger(__name__)
 
-# Create a StreamHandler that outputs to the console
-ch = logging.StreamHandler()
-# Set the log level of the StreamHandler to DEBUG
-ch.setLevel(logging.DEBUG)
 
-# Create a Formatter that formats the log messages as "time - name - level - message"
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-# Set the Formatter of the StreamHandler to the created Formatter
-ch.setFormatter(formatter)
+def setup_logger(level=logging.INFO):
+    """
+    Sets up the logger with the given log level.
 
-# Add the StreamHandler to the logger
-logger.addHandler(ch)
+    Parameters:
+    level (int): The log level to set for the logger.
+    """
+    # Set the log level of the logger
+    logger.setLevel(level)
+
+    # Check if the logger already has handlers, and if not, add a StreamHandler
+    if not logger.handlers:
+        # Create a StreamHandler that outputs to the console
+        ch = logging.StreamHandler(sys.stdout)  # Explicitly set to stdout
+        # Set the log level of the StreamHandler
+        ch.setLevel(level)
+
+        # Create a Formatter that formats the log messages
+        formatter = logging.Formatter(
+            "toolkit | %(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        # Set the Formatter of the StreamHandler to the created Formatter
+        ch.setFormatter(formatter)
+
+        # Add the StreamHandler to the logger
+        logger.addHandler(ch)
+
+    # Prevent messages from being passed to the root logger's handlers
+    logger.propagate = False
+
+
+# Set up the logger with the default log level
+setup_logger()
