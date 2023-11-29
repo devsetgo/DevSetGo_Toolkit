@@ -1,0 +1,89 @@
+
+# Project information
+site_name: 'DevSetGo Toolkit'
+site_description: 'Tools for building APIs and using Aysnc SQLAlchemy'
+site_author: 'Mike Ryan'
+site_url: 'https://devsetgo.github.io/DevSetGo_Toolkit/'
+# Repository
+repo_name: 'devsetgo/DevSetGo_Toolkit'
+repo_url: 'https://github.com/devsetgo/devsetgo_toolkit'
+
+# Copyright
+copyright: 'Copyright &copy; 2023 Mike Ryan'
+
+nav:
+    - Introduction: 'index.md'
+    - QuickStart: 'quickstart.md'
+    - BaseSchema: 'baseschema.md'
+    - HTTPCodes: 'httpcodes.md'
+    - Contributing: 'contribute.md'
+    - ChangeLog: 'changelog.md'
+# Theme
+theme:
+  features:
+    - navigation.tabs
+    - navigation.instant
+    - navigation.tabs.sticky
+    - toc.follow
+    - toc.integrate
+    - navigation.top
+  icon:
+    logo: material/library
+  name: 'material'
+  palette:
+    # Toggle dark mode
+    - scheme: slate
+      primary: blue grey
+      accent: blue
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    # Toggle light mode
+    - scheme: default
+      primary: blue
+      accent: green
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+  # logo:
+  #   icon:
+  #     repo: fontawesome/solid/people-carry
+  language: en
+  plugins:
+    - search
+    - offline
+
+  # font:
+  #   text: 'Roboto'
+  #   code: 'Roboto Mono'
+  # logo:
+  #   icon:
+  #     repo: fontawesome/solid/people-carry
+  # language: 'en'
+  # plugins:
+  # - search
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - footnotes
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+
+plugins:
+  - search:
+      separator: '[\s\-\.]+'
+      lang:
+        - en
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/devsetgo
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/_devsetgo
